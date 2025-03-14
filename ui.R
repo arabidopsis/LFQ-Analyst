@@ -95,8 +95,6 @@ ui <- function(request) {
         }"
         ),
 
-        #  Add logo to the body
-        #  tags$img(src="mbpf_logo.jpg",height=50, align="right"),
 
         ## Add tabItems
         # id="body",
@@ -122,7 +120,7 @@ ui <- function(request) {
                         from MaxQuant. Use the example file template provided.")
                   ),
                   br(),
-                  HTML('<center><img src="./LFQ_analyst.svg" width="500px"></center>'),
+                  HTML('<center><img src="/static/img/LFQ_analyst.svg" width="500px"></center>'),
                   width = 12,
                   solidHeader = TRUE,
                   status = "danger"
