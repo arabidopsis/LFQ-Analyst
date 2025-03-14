@@ -223,7 +223,7 @@ server <- function(input, output, session) {
     data_unique[, lfq_columns] <- sapply(data_unique[, lfq_columns], as.numeric)
     ## Check for matching columns in maxquant and experiment design file
     test_match_lfq_column_design(data_unique, lfq_columns, exp_design())
-    data_se <- DEP:::make_se(data_unique, lfq_columns, exp_design())
+    data_se <- DEP::make_se(data_unique, lfq_columns, exp_design())
 
     # # Check number of replicates
     # if(max(exp_design()$replicate)<3){
@@ -282,7 +282,7 @@ server <- function(input, output, session) {
       diff_all <- test_limma(imputed_data(), type = "all", paired = input$paired)
       DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
     } else {
-      diff_all <- test_diff(imputed_data(), type = "all")
+      diff_all <- DEP::test_diff(imputed_data(), type = "all")
       DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
     }
   })
@@ -307,32 +307,32 @@ server <- function(input, output, session) {
     if (num_total() <= 500) {
       if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
         pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4)
-        pca_plot <- pca_plot + labs(title = "PCA Plot")
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
         return(pca_plot)
       } else {
         pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4, indicate = "condition")
-        pca_plot <- pca_plot + labs(title = "PCA Plot")
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
         return(pca_plot)
       }
     } else {
       if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
         pca_plot <- DEP::plot_pca(dep(), point_size = 4)
-        pca_plot <- pca_plot + labs(title = "PCA Plot")
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
         return(pca_plot)
       } else {
         # pca_label<-SummarizedExperiment::colData(dep())$replicate
         pca_plot <- DEP::plot_pca(dep(), point_size = 4, indicate = "condition")
         # pca_plot<-pca_plot + geom_point()
-        pca_plot <- pca_plot + ggrepel::geom_text_repel(aes(label = factor(rowname)),
+        pca_plot <- pca_plot + ggrepel::geom_text_repel(ggplot2::aes(label = factor(rowname)),
           size = 4,
-          box.padding = unit(0.1, "lines"),
-          point.padding = unit(0.1, "lines"),
+          box.padding = grid::unit(0.1, "lines"),
+          point.padding = grid::unit(0.1, "lines"),
           segment.size = 0.5
         )
-        pca_plot <- pca_plot + labs(title = "PCA Plot")
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
 
         #        pca_plot<-DEP::plot_pca(dep(), point_size = 4, indicate = "condition")
-        #         pca_plot + ggrepel::geom_text_repel(aes(label=SummarizedExperiment::colData(dep())$replicate),
+        #         pca_plot + ggrepel::geom_text_repel(ggplot2::aes(label=SummarizedExperiment::colData(dep())$replicate),
         #                                        size = 5,
         #                                           box.padding = unit(0.1, 'lines'),
         #                                          point.padding = unit(0.1, 'lines'),
@@ -437,13 +437,13 @@ server <- function(input, output, session) {
         input$p_adj
       )
 
-      p + geom_point(data = df_protein, aes(x, y), color = "maroon", size = 3) +
+      p + ggplot2::geom_point(data = df_protein, ggplot2::aes(x, y), color = "maroon", size = 3) +
         ggrepel::geom_text_repel(
           data = df_protein,
-          aes(x, y, label = name),
+          ggplot2::aes(x, y, label = name),
           size = 4,
-          box.padding = unit(0.1, "lines"),
-          point.padding = unit(0.1, "lines"),
+          box.padding = grid::unit(0.1, "lines"),
+          point.padding = grid::unit(0.1, "lines"),
           segment.size = 0.5
         ) ## use the dataframe to plot points
     }
@@ -465,7 +465,7 @@ server <- function(input, output, session) {
       plot_protein(dep(), protein_selected, input$type)
     } else {
       protein_plot <- plot_protein(dep(), protein_selected, input$type)
-      protein_plot + scale_color_brewer(palette = "Paired")
+      protein_plot + ggplot2::scale_color_brewer(palette = "Paired")
     }
   })
 
@@ -540,8 +540,8 @@ server <- function(input, output, session) {
       plot_go <- plot_enrichment(go_results,
         number = 5, alpha = 0.05, contrasts = input$contrast,
         databases = input$go_database, nrow = 2, term_size = 8
-      ) + aes(stringr::str_wrap(Term, 60)) +
-        xlab(NULL)
+      ) + ggplot2::aes(stringr::str_wrap(Term, 60)) +
+        ggplot2::xlab(NULL)
       go_list <- list("go_result" = go_results, "plot_go" = plot_go)
       return(go_list)
     }
@@ -555,8 +555,8 @@ server <- function(input, output, session) {
     plot_pathway <- plot_enrichment(pathway_results,
       number = 5, alpha = 0.05, contrasts = input$contrast_1,
       databases = input$pathway_database, nrow = 3, term_size = 8
-    ) + aes(stringr::str_wrap(Term, 30)) +
-      xlab(NULL)
+    ) + ggplot2::aes(stringr::str_wrap(Term, 30)) +
+      ggplot2::xlab(NULL)
     pathway_list <- list("pa_result" = pathway_results, "plot_pa" = plot_pathway)
     return(pathway_list)
   })
@@ -648,7 +648,8 @@ server <- function(input, output, session) {
 
   ## Select rows dynamically
 
-  makeReactiveBinding("brush")
+  # brush <- NULL
+  # makeReactiveBinding("brush")
 
   observeEvent(input$protein_brush, {
     output$contents <- DT::renderDataTable(
@@ -662,7 +663,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$resetPlot, {
     session$resetBrush("protein_brush")
-    brush <<- NULL
+    # brush <<- NULL
 
     output$contents <- DT::renderDataTable(
       {

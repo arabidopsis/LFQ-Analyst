@@ -119,8 +119,10 @@ ui <- function(request) {
                                 the imputation type, FDR correction method and/or number of clusters in heatmap
                                 in the", tags$b("Advanced Options")),
                     tags$li("Press ", tags$b("'Start Analysis' ")),
-                    tags$li(tags$b("Hint: "), " Use the ", tags$b("User Guide "), " tab for a detailed explanation of inputs,
-                                advanced options and outputs"),
+                    tags$li(
+                      tags$b("Hint: "), " Use the ", tags$b("User Guide "),
+                      " tab for a detailed explanation of inputs, advanced options and outputs"
+                    ),
                     tags$li(tags$b("Note: "), " The experimental design file is not the", tags$b("'mqpar.xml' "), "file
                         from MaxQuant. Use the example file template provided.")
                   ),

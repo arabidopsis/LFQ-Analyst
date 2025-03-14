@@ -1,13 +1,23 @@
+# Term <- ""
+# Overlap <- ""
+# IN <- ""
+# n <- ""
+# bg_OUT <- ""
+# bg_IN <- ""
+# name <- ""
+
+`%>%` <- magrittr::`%>%`
+
 enrichr_mod <- function(genes, databases = NULL) {
   httr::set_config(httr::config(ssl_verifypeer = 0L))
   cat("Uploading data to Enrichr... ")
-  if (is.vector(genes) & !all(genes == "") & length(genes) != 0) {
-    temp <- POST(
+  if (is.vector(genes) && !all(genes == "") && length(genes) != 0) {
+    httr::POST(
       url = "http://maayanlab.cloud/Enrichr/enrich",
       body = list(list = paste(genes, collapse = "\n"))
     )
   } else if (is.data.frame(genes)) {
-    temp <- POST(
+    httr::POST(
       url = "http://maayanlab.cloud/Enrichr/enrich",
       body = list(list = paste(paste(genes[, 1], genes[, 2], sep = ","),
         collapse = "\n"
@@ -16,14 +26,14 @@ enrichr_mod <- function(genes, databases = NULL) {
   } else {
     warning("genes must be a non-empty vector of gene names or a dataframe with genes and score.")
   }
-  GET(url = "http://maayanlab.cloud/Enrichr/share")
+  httr::GET(url = "http://maayanlab.cloud/Enrichr/share")
   cat("Done.\n")
   dbs <- as.list(databases)
   dfSAF <- options()$stringsAsFactors
   options(stringsAsFactors = FALSE)
   result <- lapply(dbs, function(x) {
     cat("  Querying ", x, "... ", sep = "")
-    r <- GET(
+    r <- httr::GET(
       url = "http://maayanlab.cloud/Enrichr/export",
       query = list(file = "API", backgroundType = x)
     )
@@ -32,7 +42,7 @@ enrichr_mod <- function(genes, databases = NULL) {
     r <- read.table(tc, sep = "\t", header = TRUE, quote = "", comment.char = "")
     close(tc)
     cat("Done.\n")
-    return(r)
+    r
   })
   options(stringsAsFactors = dfSAF)
   cat("Parsing results... ")
@@ -83,25 +93,25 @@ test_gsea_mod <- function(dep,
   df_background <- NULL
   for (database in databases) {
     temp <- background_enriched[database][[1]] %>%
-      mutate(var = database)
+      dplyr::mutate(var = database)
     df_background <- rbind(df_background, temp)
   }
   df_background$contrast <- "background"
   df_background$n <- length(background)
 
   OUT <- df_background %>%
-    mutate(
+    dplyr::mutate(
       bg_IN = as.numeric(gsub("/.*", "", Overlap)),
       bg_OUT = n - bg_IN
     ) %>%
-    select(Term, bg_IN, bg_OUT)
+    dplyr::select(Term, bg_IN, bg_OUT)
 
   if (contrasts) {
     # Get gene symbols
     df <- row_data %>%
       as.data.frame() %>%
-      select(name, ends_with("_significant")) %>%
-      mutate(name = gsub("[.].*", "", name))
+      dplyr::select(name, dplyr::ends_with("_significant")) %>%
+      dplyr::mutate(name = gsub("[.].*", "", name))
 
     # Run enrichR for every contrast
     df_enrich <- NULL
@@ -115,7 +125,7 @@ test_gsea_mod <- function(dep,
       contrast_enrich <- NULL
       for (database in databases) {
         temp <- enriched[database][[1]] %>%
-          mutate(var = database)
+          dplyr::mutate(var = database)
         contrast_enrich <- rbind(contrast_enrich, temp)
       }
 
@@ -126,17 +136,17 @@ test_gsea_mod <- function(dep,
         # Background correction
         cat("Background correction... ")
         contrast_enrich <- contrast_enrich %>%
-          mutate(
+          dplyr::mutate(
             IN = as.numeric(gsub("/.*", "", Overlap)),
             OUT = n - IN
           ) %>%
-          select(-n) %>%
-          left_join(OUT, by = "Term") %>%
-          mutate(log_odds = log2((IN * bg_OUT) / (OUT * bg_IN)))
+          dplyr::select(-n) %>%
+          dplyr::left_join(OUT, by = "Term") %>%
+          dplyr::mutate(log_odds = log2((IN * bg_OUT) / (OUT * bg_IN)))
         cat("Done.")
 
         df_enrich <- rbind(df_enrich, contrast_enrich) %>%
-          mutate(contrast = gsub("_significant", "", contrast))
+          dplyr::mutate(contrast = gsub("_significant", "", contrast))
       } else {
         cat("No enough significant genes for enrichment analysis")
       }
@@ -145,9 +155,9 @@ test_gsea_mod <- function(dep,
     # Get gene symbols
     significant <- row_data %>%
       as.data.frame() %>%
-      select(name, significant) %>%
+      dplyr::select(name, significant) %>%
       filter(significant) %>%
-      mutate(name = gsub("[.].*", "", name))
+      dplyr::mutate(name = gsub("[.].*", "", name))
 
     # Run enrichR
     genes <- significant$name
@@ -157,7 +167,7 @@ test_gsea_mod <- function(dep,
     df_enrich <- NULL
     for (database in databases) {
       temp <- enriched[database][[1]] %>%
-        mutate(var = database)
+        dplyr::mutate(var = database)
       df_enrich <- rbind(df_enrich, temp)
     }
     df_enrich$contrast <- "significant"
@@ -166,13 +176,13 @@ test_gsea_mod <- function(dep,
     # Background correction
     cat("Background correction... ")
     df_enrich <- df_enrich %>%
-      mutate(
+      dplyr::mutate(
         IN = as.numeric(gsub("/.*", "", Overlap)),
         OUT = n - IN
       ) %>%
-      select(-n) %>%
-      left_join(OUT, by = "Term") %>%
-      mutate(log_odds = log2((IN * bg_OUT) / (OUT * bg_IN)))
+      dplyr::select(-n) %>%
+      dplyr::left_join(OUT, by = "Term") %>%
+      dplyr::mutate(log_odds = log2((IN * bg_OUT) / (OUT * bg_IN)))
     cat("Done.")
   }
 

@@ -1,5 +1,20 @@
 ## New function for volcano plot
 # library(dplyr)
+# library(ggplot2)
+# val <- ""
+# rowname <- ""
+# name <- ""
+# p_value <- ""
+# error <- ""
+# condition <- ""
+# CI.L <- ""
+# CI.R <- ""
+# significant <- ""
+# x <- ""
+# y <- ""
+# n <- ""
+
+
 plot_volcano_new <- function(dep, contrast, label_size = 3,
                              add_names = TRUE, adjusted = FALSE, plot = TRUE) {
   # Show error if inputs are not the required classes
@@ -59,7 +74,7 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
   )) == 0) {
     valid_cntrsts <- row_data %>%
       data.frame() %>%
-      select(ends_with("_diff")) %>%
+      dplyr::select(dplyr::ends_with("_diff")) %>%
       colnames(.) %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
@@ -101,17 +116,17 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
   )
   df <- df_tmp %>%
     data.frame() %>%
-    filter(!is.na(signif)) %>%
-    arrange(signif)
+    dplyr::filter(!is.na(signif)) %>%
+    dplyr::arrange(signif)
 
   name1 <- gsub("_vs_.*", "", contrast)
   name2 <- gsub(".*_vs_", "", contrast)
   # return(df)
   # Plot volcano with or without labels
-  p <- ggplot(df, aes(diff, p_values)) +
-    geom_vline(xintercept = 0) +
-    geom_point(aes(col = signif)) +
-    geom_text(data = data.frame(), aes(
+  p <- ggplot2::ggplot(df, ggplot2::aes(diff, p_values)) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::geom_point(ggplot2::aes(col = signif)) +
+    ggplot2::geom_text(data = data.frame(), ggplot2::aes(
       x = c(Inf, -Inf),
       y = c(-Inf, -Inf),
       hjust = c(1, 0),
@@ -120,27 +135,27 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
       size = 5,
       fontface = "bold"
     )) +
-    labs(
+    ggplot2::labs(
       title = contrast,
       x = expression(log[2] ~ "Fold change")
     ) +
     DEP::theme_DEP1() +
-    theme(legend.position = "none") +
-    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
   if (add_names) {
     p <- p + ggrepel::geom_text_repel(
-      data = filter(df, signif),
-      aes(label = name),
+      data = dplyr::filter(df, signif),
+      ggplot2::aes(label = name),
       size = label_size,
-      box.padding = unit(0.1, "lines"),
-      point.padding = unit(0.1, "lines"),
+      box.padding = grid::unit(0.1, "lines"),
+      point.padding = grid::unit(0.1, "lines"),
       segment.size = 0.5
     )
   }
   if (adjusted) {
-    p <- p + labs(y = expression(-log[10] ~ "Adjusted p-value"))
+    p <- p + ggplot2::labs(y = expression(-log[10] ~ "Adjusted p-value"))
   } else {
-    p <- p + labs(y = expression(-log[10] ~ "P-value"))
+    p <- p + ggplot2::labs(y = expression(-log[10] ~ "P-value"))
   }
   if (plot) {
     # return(list(p, df))
@@ -148,8 +163,8 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
     return(p)
   } else {
     df <- df %>%
-      select(name, diff, p_value, signif) %>%
-      arrange(desc(x))
+      dplyr::select(name, diff, p_value, signif) %>%
+      dplyr::arrange(dplyr::desc(x))
     colnames(df)[c(1, 2, 3)] <- c("protein", "log2_fold_change", "p_value_-log10")
     if (adjusted) {
       colnames(df)[3] <- "adjusted_p_value_-log10"
@@ -209,7 +224,7 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
   )) == 0) {
     valid_cntrsts <- row_data %>%
       data.frame() %>%
-      select(ends_with("_diff")) %>%
+      dplyr::select(dplyr::ends_with("_diff")) %>%
       colnames(.) %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
@@ -251,8 +266,8 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
   )
   df <- df_tmp %>%
     data.frame() %>%
-    filter(!is.na(signif)) %>%
-    deplyr::arrange(signif)
+    dplyr::filter(!is.na(signif)) %>%
+    dplyr::arrange(signif)
 
   return(df)
 }
@@ -268,95 +283,95 @@ plot_protein <- function(dep, protein, type) {
 
   df_reps <- data.frame(SummarizedExperiment::assay(subset)) %>%
     tibble::rownames_to_column() %>%
-    tidyr::gather(ID, val, -rowname) %>%
+    tidyr::gather("ID", "val", -rowname) %>%
     dplyr::left_join(., data.frame(SummarizedExperiment::colData(subset)), by = "ID")
-  df_reps$rowname <- parse_factor(as.character(df_reps$rowname), levels = protein)
+  df_reps$rowname <- readr::parse_factor(as.character(df_reps$rowname), levels = protein)
 
   df_CI <- df_reps %>%
-    group_by(condition, rowname) %>%
-    summarize(
+    dplyr::group_by(condition, rowname) %>%
+    dplyr::summarize(
       mean = mean(val, na.rm = TRUE),
       sd = sd(val, na.rm = TRUE),
-      n = n()
+      n = dplyr::n()
     ) %>%
-    mutate(
+    dplyr::mutate(
       error = qnorm(0.975) * sd / sqrt(n),
       CI.L = mean - error,
       CI.R = mean + error
     ) %>%
     as.data.frame()
-  df_CI$rowname <- parse_factor(as.character(df_CI$rowname), levels = protein)
+  df_CI$rowname <- readr::parse_factor(as.character(df_CI$rowname), levels = protein)
 
   if (type == "violin") {
-    p <- ggplot(df_reps, aes(condition, val)) +
-      geom_violin(
+    p <- ggplot2::ggplot(df_reps, ggplot2::aes(condition, val)) +
+      ggplot2::geom_violin(
         fill = "grey90", scale = "width",
         draw_quantiles = 0.5,
         trim = TRUE
       ) +
-      geom_jitter(aes(color = factor(replicate)),
-        size = 3, position = position_dodge(width = 0.3)
+      ggplot2::geom_jitter(ggplot2::aes(color = factor(replicate)),
+        size = 3, position = ggplot2::position_dodge(width = 0.3)
       ) +
-      labs(
+      ggplot2::labs(
         y = expression(log[2] ~ "Intensity"),
         col = "Replicates"
       ) +
-      facet_wrap(~rowname) +
-      scale_color_brewer(palette = "Dark2") +
+      ggplot2::facet_wrap(~rowname) +
+      ggplot2::scale_color_brewer(palette = "Dark2") +
       DEP::theme_DEP1() +
-      theme(axis.title.x = element_blank())
+      ggplot2::theme(axis.title.x = ggplot2::element_blank())
   }
 
   if (type == "boxplot") {
-    p <- ggplot(df_reps, aes(condition, val)) +
-      geom_boxplot() +
-      geom_jitter(aes(color = factor(replicate)),
-        size = 3, position = position_dodge(width = 0.3)
+    p <- ggplot2::ggplot(df_reps, ggplot2::aes(condition, val)) +
+      ggplot2::geom_boxplot() +
+      ggplot2::geom_jitter(ggplot2::aes(color = factor(replicate)),
+        size = 3, position = ggplot2::position_dodge(width = 0.3)
       ) +
-      labs(
+      ggplot2::labs(
         y = expression(log[2] ~ "Intensity"),
         col = "Replicates"
       ) +
-      facet_wrap(~rowname) +
-      scale_color_brewer(palette = "Dark2") +
+      ggplot2::facet_wrap(~rowname) +
+      ggplot2::scale_color_brewer(palette = "Dark2") +
       DEP::theme_DEP1() +
-      theme(axis.title.x = element_blank())
+      ggplot2::theme(axis.title.x = ggplot2::element_blank())
   }
 
   if (type == "interaction") {
-    p <- ggplot(df_reps, aes(condition, val)) +
-      geom_point(aes(color = factor(replicate)),
+    p <- ggplot2::ggplot(df_reps, ggplot2::aes(condition, val)) +
+      ggplot2::geom_point(ggplot2::aes(color = factor(replicate)),
         size = 3
       ) +
-      geom_line(aes(group = factor(replicate), color = factor(replicate))) +
-      labs(
+      ggplot2::geom_line(ggplot2::aes(group = factor(replicate), color = factor(replicate))) +
+      ggplot2::labs(
         y = expression(log[2] ~ "Intensity"),
         col = "Replicates"
       ) +
-      facet_wrap(~rowname) +
-      scale_color_brewer(palette = "Dark2") +
+      ggplot2::facet_wrap(~rowname) +
+      ggplot2::scale_color_brewer(palette = "Dark2") +
       DEP::theme_DEP1() +
-      theme(axis.title.x = element_blank())
+      ggplot2::theme(axis.title.x = ggplot2::element_blank())
   }
 
   if (type == "dot") {
-    p <- ggplot(df_CI, aes(condition, mean)) +
-      geom_point(
-        data = df_reps, aes(x = condition, y = val, color = factor(replicate)),
-        size = 3, position = position_dodge(width = 0.2)
+    p <- ggplot2::ggplot(df_CI, ggplot2::aes(condition, mean)) +
+      ggplot2::geom_point(
+        data = df_reps, ggplot2::aes(x = condition, y = val, color = factor(replicate)),
+        size = 3, position = ggplot2::position_dodge(width = 0.2)
       ) +
-      geom_errorbar(aes(ymin = CI.L, ymax = CI.R), width = 0.2) +
-      labs(
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = CI.L, ymax = CI.R), width = 0.2) +
+      ggplot2::labs(
         y = expression(log[2] ~ "Intensity" ~ "(\u00B195% CI)"),
         col = "Replicates"
       ) +
-      facet_wrap(~rowname) +
-      scale_color_brewer(palette = "Dark2") +
+      ggplot2::facet_wrap(~rowname) +
+      ggplot2::scale_color_brewer(palette = "Dark2") +
       DEP::theme_DEP1() +
-      theme(axis.title.x = element_blank())
+      ggplot2::theme(axis.title.x = ggplot2::element_blank())
   }
 
-  return(p)
+  p
 }
 
 plot_volcano_mod <- function(dep, contrast, label_size = 3,
@@ -418,7 +433,7 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
   )) == 0) {
     valid_cntrsts <- row_data %>%
       data.frame() %>%
-      select(ends_with("_diff")) %>%
+      dplyr::select(dplyr::ends_with("_diff")) %>%
       colnames(.) %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
@@ -458,17 +473,17 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
     significant = row_data[, signif],
     name = row_data$name
   ) %>%
-    filter(!is.na(significant)) %>%
-    arrange(significant)
+    dplyr::filter(!is.na(significant)) %>%
+    dplyr::arrange(significant)
 
   name1 <- gsub("_vs_.*", "", contrast)
   name2 <- gsub(".*_vs_", "", contrast)
 
   # Plot volcano with or without labels
-  p <- ggplot(df, aes(x, y)) +
-    geom_vline(xintercept = 0) +
-    geom_point(aes(col = significant)) +
-    geom_text(data = data.frame(), aes(
+  p <- ggplot2::ggplot(df, ggplot2::aes(x, y)) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::geom_point(ggplot2::aes(col = significant)) +
+    ggplot2::geom_text(data = data.frame(), ggplot2::aes(
       x = c(Inf, -Inf),
       y = c(-Inf, -Inf),
       hjust = c(1, 0),
@@ -477,34 +492,34 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
       size = 5,
       fontface = "bold"
     )) +
-    labs(
+    ggplot2::labs(
       title = contrast,
       x = expression(log[2] ~ "Fold change")
     ) +
     DEP::theme_DEP1() +
-    theme(legend.position = "none") +
-    scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
   if (add_names) {
     p <- p + ggrepel::geom_text_repel(
-      data = filter(df, significant),
-      aes(label = name),
+      data = dplyr::filter(df, significant),
+      ggplot2::aes(label = name),
       size = label_size,
-      box.padding = unit(0.1, "lines"),
-      point.padding = unit(0.1, "lines"),
+      box.padding = grid::unit(0.1, "lines"),
+      point.padding = grid::unit(0.1, "lines"),
       segment.size = 0.5
     )
   }
   if (adjusted) {
-    p <- p + labs(y = expression(-log[10] ~ "Adjusted p-value"))
+    p <- p + ggplot2::labs(y = expression(-log[10] ~ "Adjusted p-value"))
   } else {
-    p <- p + labs(y = expression(-log[10] ~ "P-value"))
+    p <- p + ggplot2::labs(y = expression(-log[10] ~ "P-value"))
   }
   if (plot) {
     return(p)
   } else {
     df <- df %>%
-      select(name, x, y, significant) %>%
-      arrange(desc(x))
+      dplyr::select(name, x, y, significant) %>%
+      dplyr::arrange(dplyr::desc(x))
     colnames(df)[c(1, 2, 3)] <- c("protein", "log2_fold_change", "p_value_-log10")
     if (adjusted) {
       colnames(df)[3] <- "adjusted_p_value_-log10"
