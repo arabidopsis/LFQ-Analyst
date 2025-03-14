@@ -18,7 +18,7 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
     length(plot) == 1
   )
 
-  row_data <- rowData(dep, use.names = FALSE)
+  row_data <- SummarizedExperiment::rowData(dep, use.names = FALSE)
 
   # Show error if inputs do not contain required columns
   if (any(!c("name", "ID") %in% colnames(row_data))) {
@@ -124,7 +124,7 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
       title = contrast,
       x = expression(log[2] ~ "Fold change")
     ) +
-    theme_DEP1() +
+    DEP::theme_DEP1() +
     theme(legend.position = "none") +
     scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
   if (add_names) {
@@ -168,7 +168,7 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
     length(contrast) == 1
   )
 
-  row_data <- rowData(dep, use.names = FALSE)
+  row_data <- SummarizedExperiment::rowData(dep, use.names = FALSE)
 
   # Show error if inputs do not contain required columns
   if (any(!c("name", "ID") %in% colnames(row_data))) {
@@ -266,10 +266,10 @@ plot_protein <- function(dep, protein, type) {
   )
   subset <- dep[protein]
 
-  df_reps <- data.frame(assay(subset)) %>%
+  df_reps <- data.frame(SummarizedExperiment::assay(subset)) %>%
     rownames_to_column() %>%
     gather(ID, val, -rowname) %>%
-    left_join(., data.frame(colData(subset)), by = "ID")
+    left_join(., data.frame(SummarizedExperiment::colData(subset)), by = "ID")
   df_reps$rowname <- parse_factor(as.character(df_reps$rowname), levels = protein)
 
   df_CI <- df_reps %>%
@@ -303,7 +303,7 @@ plot_protein <- function(dep, protein, type) {
       ) +
       facet_wrap(~rowname) +
       scale_color_brewer(palette = "Dark2") +
-      theme_DEP1() +
+      DEP::theme_DEP1() +
       theme(axis.title.x = element_blank())
   }
 
@@ -319,7 +319,7 @@ plot_protein <- function(dep, protein, type) {
       ) +
       facet_wrap(~rowname) +
       scale_color_brewer(palette = "Dark2") +
-      theme_DEP1() +
+      DEP::theme_DEP1() +
       theme(axis.title.x = element_blank())
   }
 
@@ -335,7 +335,7 @@ plot_protein <- function(dep, protein, type) {
       ) +
       facet_wrap(~rowname) +
       scale_color_brewer(palette = "Dark2") +
-      theme_DEP1() +
+      DEP::theme_DEP1() +
       theme(axis.title.x = element_blank())
   }
 
@@ -352,7 +352,7 @@ plot_protein <- function(dep, protein, type) {
       ) +
       facet_wrap(~rowname) +
       scale_color_brewer(palette = "Dark2") +
-      theme_DEP1() +
+      DEP::theme_DEP1() +
       theme(axis.title.x = element_blank())
   }
 
@@ -377,7 +377,7 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
     length(plot) == 1
   )
 
-  row_data <- rowData(dep, use.names = FALSE)
+  row_data <- SummarizedExperiment::rowData(dep, use.names = FALSE)
 
   # Show error if inputs do not contain required columns
   if (any(!c("name", "ID") %in% colnames(row_data))) {
@@ -481,7 +481,7 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
       title = contrast,
       x = expression(log[2] ~ "Fold change")
     ) +
-    theme_DEP1() +
+    DEP::theme_DEP1() +
     theme(legend.position = "none") +
     scale_color_manual(values = c("TRUE" = "black", "FALSE" = "grey"))
   if (add_names) {

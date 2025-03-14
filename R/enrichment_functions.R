@@ -57,7 +57,7 @@ test_gsea_mod <- function(dep,
   )
 
 
-  row_data <- rowData(dep, use.names = FALSE)
+  row_data <- SummarizedExperiment::rowData(dep, use.names = FALSE)
   # Show error if inputs do not contain required columns
   if (any(!c("name", "ID") %in% colnames(row_data))) {
     stop("'name' and/or 'ID' columns are not present in '",

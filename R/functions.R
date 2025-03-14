@@ -85,13 +85,13 @@ LFQ_wrapper <- function(maxquant_data, expdesign) {
   alpha <- 0.05
   lfc <- 1
   param <- data.frame(alpha, lfc)
-  dep <- DEP:::add_rejections(data_diff_all_contrasts, alpha = 0.05, lfc = log2(1))
+  dep <- DEP::add_rejections(data_diff_all_contrasts, alpha = 0.05, lfc = log2(1))
 
 
   ## Plot multiple scatterplots
   ## First get the LFQ expression data
   ## Use ggpairs function from GGally library to generate multiple matrix plots
-  paired_data <- as.data.frame(assay(dep))
+  paired_data <- as.data.frame(SummarizedExperiment::assay(dep))
 
 
 
@@ -130,8 +130,8 @@ coef_variation <- function(x) {
 
 plot_cvs <- function(se) {
   ## backtransform data
-  untransformed_intensity <- 2^(assay(se))
-  exp_design <- colData(se)
+  untransformed_intensity <- 2^(SummarizedExperiment::assay(se))
+  exp_design <- SummarizedExperiment::colData(se)
 
   ### merge untransformed to exp design and calculate cvs
 
@@ -153,7 +153,7 @@ plot_cvs <- function(se) {
       linetype = "dashed"
     ) +
     labs(title = "Sample Coefficient of Variation", x = "Coefficient of Variation", y = "Count") +
-    theme_DEP2() +
+    DEP::theme_DEP2() +
     theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
   p1 + geom_text(
@@ -202,8 +202,8 @@ get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
   clustering_distance <- match.arg(clustering_distance)
 
   # Extract row and col data
-  row_data <- rowData(dep)
-  col_data <- colData(dep) %>%
+  row_data <- SummarizedExperiment::rowData(dep)
+  col_data <- SummarizedExperiment::colData(dep) %>%
     as.data.frame()
 
   # Show error if inputs do not contain required columns
@@ -253,7 +253,7 @@ get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
   filtered <- dep[row_data$significant, ]
 
   # Check for missing values
-  if (any(is.na(assay(filtered)))) {
+  if (any(is.na(SummarizedExperiment::assay(filtered)))) {
     warning("Missing values in '", deparse(substitute(dep)), "'. ",
       "Using clustering_distance = 'gower'",
       call. = FALSE
@@ -266,12 +266,12 @@ get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
 
   # Get centered intensity values ('centered')
   if (type == "centered") {
-    rowData(filtered)$mean <- rowMeans(assay(filtered), na.rm = TRUE)
-    df <- assay(filtered) - rowData(filtered)$mean
+    SummarizedExperiment::rowData(filtered)$mean <- rowMeans(SummarizedExperiment::assay(filtered), na.rm = TRUE)
+    df <- SummarizedExperiment::assay(filtered) - SummarizedExperiment::rowData(filtered)$mean
   }
   # Get contrast fold changes ('contrast')
   if (type == "contrast") {
-    df <- rowData(filtered) %>%
+    df <- SummarizedExperiment::rowData(filtered) %>%
       data.frame() %>%
       column_to_rownames(var = "name") %>%
       select(dplyr::ends_with("_diff"))
@@ -399,7 +399,7 @@ get_annotation <- function(dep, indicate) {
   )
 
   # Check indicate columns
-  col_data <- colData(dep) %>%
+  col_data <- SummarizedExperiment::colData(dep) %>%
     as.data.frame()
   columns <- colnames(col_data)
   if (all(!indicate %in% columns)) {
@@ -482,10 +482,10 @@ test_limma <- function(se, type = c("control", "all", "manual"),
   # Show error if inputs do not contain required columns
   type <- match.arg(type)
 
-  col_data <- colData(se)
-  raw <- assay(se)
+  col_data <- SummarizedExperiment::colData(se)
+  raw <- SummarizedExperiment::assay(se)
 
-  if (any(!c("name", "ID") %in% colnames(rowData(se)))) {
+  if (any(!c("name", "ID") %in% colnames(SummarizedExperiment::rowData(se)))) {
     stop("'name' and/or 'ID' columns are not present in '",
       deparse(substitute(se)),
       "'\nRun make_unique() and make_se() to obtain the required columns",
@@ -656,7 +656,7 @@ test_limma <- function(se, type = c("control", "all", "manual"),
 
   table <- table %>% select(all_of(ordered_colNames))
 
-  rowData(se) <- merge(rowData(se), table,
+  SummarizedExperiment::rowData(se) <- merge(SummarizedExperiment::rowData(se), table,
     by.x = "name", by.y = "rowname", all.x = TRUE
   )
   return(se)
@@ -667,7 +667,7 @@ get_results_proteins <- function(dep) {
   # Show error if inputs are not the required classes
   assertthat::assert_that(inherits(dep, "SummarizedExperiment"))
 
-  row_data <- rowData(dep)
+  row_data <- SummarizedExperiment::rowData(dep)
   # Show error if inputs do not contain required columns
   if (any(!c("name", "ID") %in% colnames(row_data))) {
     stop("'name' and/or 'ID' columns are not present in '",
@@ -685,12 +685,12 @@ get_results_proteins <- function(dep) {
   }
 
   # Obtain average protein-centered enrichment values per condition
-  row_data$mean <- rowMeans(assay(dep), na.rm = TRUE)
-  centered <- assay(dep) - row_data$mean
+  row_data$mean <- rowMeans(SummarizedExperiment::assay(dep), na.rm = TRUE)
+  centered <- SummarizedExperiment::assay(dep) - row_data$mean
   centered <- data.frame(centered) %>%
     tibble::rownames_to_column() %>%
     tidyr::gather(ID, val, -rowname) %>%
-    dplyr::left_join(., data.frame(colData(dep)), by = "ID")
+    dplyr::left_join(., data.frame(SummarizedExperiment::colData(dep)), by = "ID")
   centered <- dplyr::group_by(centered, rowname, condition) %>%
     dplyr::summarize(val = mean(val, na.rm = TRUE)) %>%
     dplyr::mutate(val = signif(val, digits = 3)) %>%
@@ -930,14 +930,14 @@ keep_function <- function(se) {
   # Show error if inputs are not the required classes
 
   # Show error if inputs do not contain required columns
-  if (any(!c("name", "ID") %in% colnames(rowData(se, use.names = FALSE)))) {
+  if (any(!c("name", "ID") %in% colnames(SummarizedExperiment::rowData(se, use.names = FALSE)))) {
     stop("'name' and/or 'ID' columns are not present in '",
       deparse(substitute(se)),
       "'\nRun make_unique() and make_se() to obtain the required columns",
       call. = FALSE
     )
   }
-  if (any(!c("label", "condition", "replicate") %in% colnames(colData(se)))) {
+  if (any(!c("label", "condition", "replicate") %in% colnames(SummarizedExperiment::colData(se)))) {
     stop("'label', 'condition' and/or 'replicate' columns are not present in '",
       deparse(substitute(se)),
       "'\nRun make_se() or make_se_parse() to obtain the required columns",
@@ -946,11 +946,11 @@ keep_function <- function(se) {
   }
 
   # Make assay values binary (1 = valid value)
-  bin_data <- assay(se)
+  bin_data <- SummarizedExperiment::assay(se)
 
   # new, removed ref columns from dataset
   bin_data <- bin_data %>% data.frame()
-  idx <- is.na(bin_data) # idx <- is.na(assay(se))
+  idx <- is.na(bin_data) # idx <- is.na(SummarizedExperiment::assay(se))
   bin_data[!idx] <- 1
   bin_data[idx] <- 0
 
@@ -960,7 +960,7 @@ keep_function <- function(se) {
     data.frame() %>%
     rownames_to_column() %>%
     gather(ID, value, -rowname) %>%
-    left_join(., data.frame(colData(se)), by = "ID") %>%
+    left_join(., data.frame(SummarizedExperiment::colData(se)), by = "ID") %>%
     group_by(rowname, condition) %>%
     summarize(miss_val = n() - sum(value))
   return(keep)

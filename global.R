@@ -1,8 +1,8 @@
 VERSION <- "v1.3"
 
-library("SummarizedExperiment")
+# library("SummarizedExperiment")
 library("tidyverse")
-library("DEP")
+# library("DEP")
 library("testthat")
 library("shiny")
 library("shinydashboard")

@@ -32,26 +32,6 @@ server <- function(input, output, session) {
     }
     shinyjs::show("enrichment_tab")
   })
-  # observeEvent(input$analyze,{
-  #   shinyjs::hide("howto")
-  # })
-
-  # observe({
-  #   if(input$body=="info"){
-  # output$howto<-renderUI({
-  #   box(width=12,
-  #       includeMarkdown("www/Info.Rmd")
-  #   )
-  # })
-  #
-  # observeEvent(input$analyze,{
-  #   output$howto<-renderUI({NULL})
-  # })
-  #   }
-  # else{
-  #   output$howto<-renderUI({NULL})
-  #     }
-  # })
 
   ## Shinyalert
   observeEvent(input$analyze, {
@@ -59,7 +39,7 @@ server <- function(input, output, session) {
       return()
     }
 
-    shinyalert("In Progress!", "Data analysis has started, wait until table and plots
+    shinyalert::shinyalert("In Progress!", "Data analysis has started, wait until table and plots
                 appear on the screen",
       type = "info",
       closeOnClickOutside = TRUE,
@@ -67,18 +47,6 @@ server <- function(input, output, session) {
       timer = 10000
     ) # timer in miliseconds (10 sec)
   })
-
-  # observe({
-  #   if (input$tabs_selected == "demo") {
-  #     shinyalert("Demo results loading!...", "Wait until table and plots
-  #               appear on the screen",
-  #       type = "info",
-  #       closeOnClickOutside = TRUE,
-  #       closeOnEsc = TRUE,
-  #       timer = 6000
-  #     )
-  #   }
-  # })
 
 
   #### ======= Render Functions
@@ -155,21 +123,6 @@ server <- function(input, output, session) {
   })
 
 
-  ## Read input files on shiny server
-  ## NOTE: have to use reactive framework, otherwise throws out error
-  # observeEvent(input$analyze,{
-  #   maxquant_data<-reactive({
-  #     inFile<-input$file1
-  #     if(is.null(inFile))
-  #       return(NULL)
-  #     read.table(inFile$datapath,
-  #                header = TRUE,
-  #                fill= TRUE, # to fill any missing data
-  #                sep = "\t"
-  #     )
-  #   })
-  # })
-
   ## make reactive elements
   maxquant_data_input <- reactive({
     NULL
@@ -177,12 +130,7 @@ server <- function(input, output, session) {
   exp_design_input <- reactive({
     NULL
   })
-  exp_design_example <- reactive({
-    NULL
-  })
-  maxquant_data_example <- reactive({
-    NULL
-  })
+
 
   maxquant_data_input <- eventReactive(input$analyze, {
     inFile <- input$file1
@@ -230,38 +178,6 @@ server <- function(input, output, session) {
     return(temp_df)
   })
 
-
-  ### Load data from Rdata
-  # observeEvent(input$load_data,{
-  # example_data<-reactive({
-  #   load("data/example_data.RData", envir = .GlobalEnv)
-  # })
-  # maxquant_data<-reactive({example_data[1]})
-  # exp_design<-reactive({example_data[2]})
-  #  env<-reactive({
-  #    LoadToEnvironment("data/example_data.RData", env = globalenv())
-  #  })
-  #
-  #   observeEvent(input$load_data,{
-  # # message(env()[["exp_design"]])
-  #     maxquant_data_example<-reactive({
-  #     env()[["maxquant_output"]]
-  #   })
-  #   })
-  #   observeEvent(input$load_data,{
-  #     exp_design_example<-reactive({
-  #     env()[["exp_design"]]
-  #   })
-  #  })
-  # }) ## leave this commented
-  #
-  #  maxquant_data<-eventReactive(input$load_data,{
-  #    env()[['maxquant_output']]
-  #  })
-  #
-  # exp_design<-eventReactive(input$load_data,{
-  #    env()[['exp_design']]
-  #  })
 
 
   ### Reactive components
@@ -332,7 +248,7 @@ server <- function(input, output, session) {
   })
 
   unimputed_table <- reactive({
-    temp <- assay(processed_data())
+    temp <- SummarizedExperiment::assay(processed_data())
     temp1 <- 2^(temp)
     colnames(temp1) <- paste(colnames(temp1), "original_intensity", sep = "_")
     temp1 <- cbind(ProteinID = rownames(temp1), temp1)
@@ -341,7 +257,7 @@ server <- function(input, output, session) {
   })
 
   normalised_data <- reactive({
-    normalize_vsn(processed_data())
+    DEP::normalize_vsn(processed_data())
   })
 
   imputed_data <- reactive({
@@ -349,7 +265,7 @@ server <- function(input, output, session) {
   })
 
   imputed_table <- reactive({
-    temp <- assay(imputed_data())
+    temp <- SummarizedExperiment::assay(imputed_data())
     # tibble::rownames_to_column(temp,var = "ProteinID")
     temp1 <- 2^(temp)
     colnames(temp1) <- paste(colnames(temp1), "imputed_intensity", sep = "_")
@@ -358,16 +274,16 @@ server <- function(input, output, session) {
   })
 
   diff_all <- reactive({
-    test_diff(imputed_data(), type = "all")
+    DEP::test_diff(imputed_data(), type = "all")
   })
 
   dep <- reactive({
     if (input$fdr_correction == "BH") {
       diff_all <- test_limma(imputed_data(), type = "all", paired = input$paired)
-      add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
+      DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
     } else {
       diff_all <- test_diff(imputed_data(), type = "all")
-      add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
+      DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
     }
   })
 
@@ -380,13 +296,6 @@ server <- function(input, output, session) {
     trimws(temp)
   })
 
-  ## Select point on volcano plot
-  # protein_graph_selected<- reactive({
-  #   protein_row<-nearPoints(data_result(), input$protein_click,
-  #                           maxpoints = 1)
-  #  # as.character(protein_row$name)
-  # })
-  #
 
   ## Results plot inputs
 
@@ -396,7 +305,7 @@ server <- function(input, output, session) {
       return()
     }
     if (num_total() <= 500) {
-      if (length(levels(as.factor(colData(dep())$replicate))) <= 6) {
+      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
         pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4)
         pca_plot <- pca_plot + labs(title = "PCA Plot")
         return(pca_plot)
@@ -406,7 +315,7 @@ server <- function(input, output, session) {
         return(pca_plot)
       }
     } else {
-      if (length(levels(as.factor(colData(dep())$replicate))) <= 6) {
+      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
         pca_plot <- DEP::plot_pca(dep(), point_size = 4)
         pca_plot <- pca_plot + labs(title = "PCA Plot")
         return(pca_plot)
@@ -552,7 +461,7 @@ server <- function(input, output, session) {
     }
     protein_selected <- df[input$contents_rows_selected, 1]
 
-    if (length(levels(as.factor(colData(dep())$replicate))) <= 8) {
+    if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 8) {
       plot_protein(dep(), protein_selected, input$type)
     } else {
       protein_plot <- plot_protein(dep(), protein_selected, input$type)
@@ -563,22 +472,22 @@ server <- function(input, output, session) {
 
   ## QC Inputs
   norm_input <- reactive({
-    plot_normalization(
+    DEP::plot_normalization(
       processed_data(),
       normalised_data()
     )
   })
 
   missval_input <- reactive({
-    plot_missval(processed_data())
+    DEP::plot_missval(processed_data())
   })
 
   detect_input <- reactive({
-    plot_detect(processed_data())
+    DEP::plot_detect(processed_data())
   })
 
   imputation_input <- reactive({
-    plot_imputation(
+    DEP::plot_imputation(
       normalised_data(),
       diff_all()
     )
@@ -589,15 +498,15 @@ server <- function(input, output, session) {
   })
 
   numbers_input <- reactive({
-    plot_numbers(normalised_data())
+    DEP::plot_numbers(normalised_data())
   })
 
   coverage_input <- reactive({
-    plot_coverage(normalised_data())
+    DEP::plot_coverage(normalised_data())
   })
 
   correlation_input <- reactive({
-    plot_cor(dep(), significant = FALSE)
+    DEP::plot_cor(dep(), significant = FALSE)
   })
 
   cvs_input <- reactive({
@@ -654,7 +563,7 @@ server <- function(input, output, session) {
 
 
   #### Interactive UI
-  output$significantBox <- renderInfoBox({
+  output$significantBox <- shinydashboard::renderInfoBox({
     num_total <- dep() %>%
       nrow()
     num_signif <- dep() %>%
@@ -662,7 +571,7 @@ server <- function(input, output, session) {
       nrow()
     frac <- num_signif / num_total
 
-    info_box <- infoBox("Significant proteins",
+    info_box <- shinydashboard::infoBox("Significant proteins",
       paste0(
         num_signif,
         " out of ",
@@ -702,10 +611,10 @@ server <- function(input, output, session) {
   )
 
   ## Deselect all rows button
-  proxy <- dataTableProxy("contents")
+  proxy <- DT::dataTableProxy("contents")
 
   observeEvent(input$clear, {
-    proxy %>% selectRows(NULL)
+    proxy %>% DT::selectRows(NULL)
   })
 
   observeEvent(input$original, {
@@ -735,21 +644,10 @@ server <- function(input, output, session) {
     # xvar = "diff", yvar = "p_values")
     protein_selected <- protein_tmp$name
   })
-  #   observeEvent(input$protein_brush,{
-  # output$protein_info<-renderPrint({
-  # #  protein_selected()
-  #   #nearPoints(rowData(dep()), input$protein_click, maxpoints = 1)
-  #   brushedPoints(volcano_df(), input$protein_brush,
-  #               xvar = "diff", yvar = "p_values")
-  #  # head(volcano_df())
-  #   #input$protein_click
-  #  # str(input$protein_hover)
-  # })
-  #  })
+
 
   ## Select rows dynamically
 
-  brush <- NULL
   makeReactiveBinding("brush")
 
   observeEvent(input$protein_brush, {
@@ -760,49 +658,6 @@ server <- function(input, output, session) {
       },
       options = list(scrollX = TRUE)
     )
-
-    # proteins_selected<-data_result()[data_result()[["Gene Name"]] %in% protein_name_brush(), ] ## get all rows selected
-    # ## convert contrast to x and padj to y
-    # diff_proteins <- grep(paste("^",input$volcano_cntrst, "_log2", sep = ""),
-    #                       colnames(proteins_selected))
-    # if(input$p_adj=="FALSE"){
-    #   padj_proteins <- grep(paste("^",input$volcano_cntrst, "_p.val", sep = ""),
-    #                         colnames(proteins_selected))
-    # }
-    # else{
-    #   padj_proteins <- grep(paste("^",input$volcano_cntrst, "_p.adj", sep = ""),
-    #                         colnames(proteins_selected))
-    # }
-    # df_protein <- data.frame(x = proteins_selected[, diff_proteins],
-    #                          y = -log10(as.numeric(proteins_selected[, padj_proteins])),#)#,
-    #                          name = proteins_selected$`Gene Name`)
-    # #print(df_protein)
-    #
-    # p<-plot_volcano_new(dep(),
-    #                     input$volcano_cntrst,
-    #                     input$fontsize,
-    #                     input$check_names,
-    #                     input$p_adj)
-    #
-    #   p<- p + geom_point(data = df_protein, aes(x, y), color = "maroon", size= 3) +
-    #   ggrepel::geom_text_repel(data = df_protein,
-    #                            aes(x, y, label = name),
-    #                            size = 4,
-    #                            box.padding = unit(0.1, 'lines'),
-    #                            point.padding = unit(0.1, 'lines'),
-    #                            segment.size = 0.5)
-    #
-    # output$volcano <- renderPlot({
-    #   withProgress(message = 'Volcano Plot calculations are in progress',
-    #                detail = 'Please wait for a while', value = 0, {
-    #                  for (i in 1:15) {
-    #                    incProgress(1/15)
-    #                    Sys.sleep(0.25)
-    #                  }
-    #                })
-    #  p
-    # })
-    # return(p)
   })
 
   observeEvent(input$resetPlot, {
@@ -949,7 +804,7 @@ server <- function(input, output, session) {
       #   filter(significant) %>%
       #   select(-significant),
       "Imputed_matrix" = imputed_table(),
-      "Full_dataset" = get_df_wide(dep())
+      "Full_dataset" = DEP::get_df_wide(dep())
     )
   })
 
