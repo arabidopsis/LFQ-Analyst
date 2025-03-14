@@ -232,10 +232,13 @@ ui <- function(request) {
                         plotOutput("heatmap", height = 600)
                       ),
                       fluidRow(
-                        shinydashboard::box(numericInput("cluster_number",
-                          "Cluster to download",
-                          min = 1, max = 6, value = 1
-                        ), width = 6),
+                        shinydashboard::box(
+                          numericInput("cluster_number",
+                            "Cluster to download",
+                            min = 1, max = 6, value = 1
+                          ),
+                          width = 6
+                        ),
                         shinydashboard::box(downloadButton("downloadCluster", "Save Cluster"),
                           downloadButton("download_hm_svg", "Save svg"),
                           width = 5
