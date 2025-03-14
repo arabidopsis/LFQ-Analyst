@@ -330,13 +330,6 @@ server <- function(input, output, session) {
           segment.size = 0.5
         )
         pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
-
-        #        pca_plot<-DEP::plot_pca(dep(), point_size = 4, indicate = "condition")
-        #         pca_plot + ggrepel::geom_text_repel(ggplot2::aes(label=SummarizedExperiment::colData(dep())$replicate),
-        #                                        size = 5,
-        #                                           box.padding = unit(0.1, 'lines'),
-        #                                          point.padding = unit(0.1, 'lines'),
-        #                                         segment.size = 0.5)
         return(pca_plot)
       }
     }
