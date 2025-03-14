@@ -252,7 +252,7 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
   df <- df_tmp %>%
     data.frame() %>%
     filter(!is.na(signif)) %>%
-    arrange(signif)
+    deplyr::arrange(signif)
 
   return(df)
 }
@@ -267,9 +267,9 @@ plot_protein <- function(dep, protein, type) {
   subset <- dep[protein]
 
   df_reps <- data.frame(SummarizedExperiment::assay(subset)) %>%
-    rownames_to_column() %>%
-    gather(ID, val, -rowname) %>%
-    left_join(., data.frame(SummarizedExperiment::colData(subset)), by = "ID")
+    tibble::rownames_to_column() %>%
+    tidyr::gather(ID, val, -rowname) %>%
+    dplyr::left_join(., data.frame(SummarizedExperiment::colData(subset)), by = "ID")
   df_reps$rowname <- parse_factor(as.character(df_reps$rowname), levels = protein)
 
   df_CI <- df_reps %>%
