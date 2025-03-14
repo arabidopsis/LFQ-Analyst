@@ -1,0 +1,9 @@
+#!/usr/bin/env Rscript
+args <- commandArgs(trailingOnly = TRUE)
+for (arg in args) {
+  if (dir.exists(arg)) {
+    styler::style_dir(arg)
+  } else {
+    styler::style_file(arg)
+  }
+}

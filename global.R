@@ -22,6 +22,3 @@ source("R/volcano_function.R")
 source("R/tests.R")
 source("R/demo_functions.R")
 source("R/enrichment_functions.R")
-
-
-
