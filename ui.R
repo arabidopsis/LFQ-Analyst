@@ -1,16 +1,22 @@
 # Define UI for data upload app ----
 library("shiny", quietly = TRUE)
+# https://stackoverflow.com/questions/31794702/r-shiny-dashboard-tabitems-not-apparing
+convertMenuItem <- function(mi, tabName) {
+  mi$children[[1]]$attribs["data-toggle"] <- "tab"
+  mi$children[[1]]$attribs["data-value"] <- tabName
+  mi
+}
 ui <- function(request) {
   shinyUI(
-    dashboardPage(
+    shinydashboard::dashboardPage(
       skin = "blue",
-      dashboardHeader(title = "LFQ-Analyst"),
+      shinydashboard::dashboardHeader(title = "LFQ-Analyst"),
       # disable = TRUE),# Disable title bar
-      dashboardSidebar(
-        sidebarMenu(
+      shinydashboard::dashboardSidebar(
+        shinydashboard::sidebarMenu(
           id = "tabs_selected",
           # convertMenuItem(menuItem("Home", icon = icon("home"), selected = TRUE, tabName = "home"), tabName = "home"),
-          convertMenuItem(menuItem("Analysis",
+          convertMenuItem(shinydashboard::menuItem("Analysis",
             tabName = "analysis", icon = icon("flask"),
             startExpanded = TRUE,
             # menuItem("Input Files", tabName="file", icon=icon("file"), #selected = TRUE,
@@ -36,7 +42,7 @@ ui <- function(request) {
             tags$hr(),
             actionButton("analyze", "Start Analysis"),
             tags$hr(),
-            menuItem("Advanced Options",
+            shinydashboard::menuItem("Advanced Options",
               tabName = "advanced", icon = icon("cogs"),
               numericInput("p",
                 "Adjusted p-value cutoff",
@@ -80,8 +86,8 @@ ui <- function(request) {
       ## DASHBOARD BODY
       ################################################################
 
-      dashboardBody(
-        useShinyjs(), # imp to use shinyjs functions
+      shinydashboard::dashboardBody(
+        shinyjs::useShinyjs(), # imp to use shinyjs functions
         # tags$head(includeScript("google_analytics.js")),
         # tags$head(includeHTML(("google_analytics-GA4.html"))),
         tags$head(
@@ -97,13 +103,13 @@ ui <- function(request) {
 
         ## Add tabItems
         # id="body",
-        tabItems(
-          tabItem(
+        shinydashboard::tabItems(
+          shinydashboard::tabItem(
             tabName = "analysis",
             div(
               id = "quickstart_info",
               fluidPage(
-                box(
+                shinydashboard::box(
                   title = "Getting Started",
                   h3(tags$b(span("Quick Start", style = "text-decoration:underline"))),
                   tags$ul(
@@ -129,13 +135,13 @@ ui <- function(request) {
             shinyjs::hidden(div(
               id = "downloadbox",
               fluidRow(
-                box(
+                shinydashboard::box(
                   column(6, uiOutput("downloadTable"), offset = 1),
                   column(4, uiOutput("downloadButton")), # make the button on same line
                   width = 4
                 ),
-                infoBoxOutput("significantBox", width = 4),
-                box(
+                shinydashboard::infoBoxOutput("significantBox", width = 4),
+                shinydashboard::box(
                   column(5, uiOutput("downloadreport")), # offset for dist between buttons
                   # tags$br(),
                   # column(5,uiOutput('downloadPlots')),
@@ -157,7 +163,7 @@ ui <- function(request) {
             fluidRow(
               shinyjs::hidden(div(
                 id = "results_tab",
-                box(
+                shinydashboard::box(
                   title = "LFQ Results Table",
                   DT::dataTableOutput("contents"),
                   #  actionButton("clear", "Deselect Rows"),
@@ -168,26 +174,26 @@ ui <- function(request) {
                   solidHeader = TRUE
                 ),
                 # column(
-                box(
+                shinydashboard::box(
                   width = 6,
                   collapsible = TRUE,
                   # status="primary",
                   # solidHeader=TRUE,
-                  tabBox(
+                  shinydashboard::tabBox(
                     title = "Result Plots",
                     width = 12,
                     tabPanel(
                       title = "Volcano plot",
                       fluidRow(
-                        box(uiOutput("volcano_cntrst"), width = 5),
-                        box(
+                        shinydashboard::box(uiOutput("volcano_cntrst"), width = 5),
+                        shinydashboard::box(
                           numericInput("fontsize",
                             "Font size",
                             min = 0, max = 8, value = 4
                           ),
                           width = 3
                         ),
-                        box(
+                        shinydashboard::box(
                           checkboxInput("check_names",
                             "Display names",
                             value = FALSE
@@ -224,11 +230,11 @@ ui <- function(request) {
                         plotOutput("heatmap", height = 600)
                       ),
                       fluidRow(
-                        box(numericInput("cluster_number",
+                        shinydashboard::box(numericInput("cluster_number",
                           "Cluster to download",
                           min = 1, max = 6, value = 1
                         ), width = 6),
-                        box(downloadButton("downloadCluster", "Save Cluster"),
+                        shinydashboard::box(downloadButton("downloadCluster", "Save Cluster"),
                           downloadButton("download_hm_svg", "Save svg"),
                           width = 5
                         ),
@@ -240,7 +246,7 @@ ui <- function(request) {
                     tabPanel(
                       title = "Protein Plot",
                       fluidRow(
-                        box(
+                        shinydashboard::box(
                           radioButtons("type",
                             "Plot type",
                             choices = c(
@@ -274,7 +280,7 @@ ui <- function(request) {
                 id = "qc_tab",
                 column(
                   width = 6,
-                  tabBox(
+                  shinydashboard::tabBox(
                     title = "QC Plots", width = 12,
                     tabPanel(
                       title = "PCA Plot",
@@ -326,7 +332,7 @@ ui <- function(request) {
                 ),
                 column(
                   width = 6,
-                  tabBox(
+                  shinydashboard::tabBox(
                     title = "Enrichment", width = 12,
                     tabPanel(
                       title = "Gene Ontology",
@@ -349,7 +355,7 @@ ui <- function(request) {
                         column(12, actionButton("go_analysis", "Run Enrichment")),
                         column(
                           12,
-                          box(width = 12, uiOutput("spinner_go"), height = 400)
+                          shinydashboard::box(width = 12, uiOutput("spinner_go"), height = 400)
                         ),
                         column(12, downloadButton("downloadGO", "Download Table"))
                       )
@@ -374,7 +380,7 @@ ui <- function(request) {
                         column(12, actionButton("pathway_analysis", "Run Enrichment")),
                         column(
                           12,
-                          box(width = 12, uiOutput("spinner_pa"), height = 400)
+                          shinydashboard::box(width = 12, uiOutput("spinner_pa"), height = 400)
                         ),
                         column(12, downloadButton("downloadPA", "Download Table"))
                       )
