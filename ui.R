@@ -442,11 +442,7 @@ ui <- shinyUI(
     # disable = TRUE),# Disable title bar
     shinydashboard::dashboardSidebar(
       sidebar()
-    ), # sidebar close
-
-    ################################################################
-    ## DASHBOARD BODY
-    ################################################################
+    ),
 
     shinydashboard::dashboardBody(
       shinyjs::useShinyjs(), # imp to use shinyjs functions
@@ -461,8 +457,6 @@ ui <- shinyUI(
       ),
 
 
-      ## Add tabItems
-      # id="body",
       shinydashboard::tabItems(
         analysis_tab()
       ),
@@ -470,8 +464,8 @@ ui <- shinyUI(
         tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
                Monash University"),
         align = "right"
-      ), # Dasbboardbody close
+      ),
       shiny.info::version(position = "bottom right")
-    ) # Dashboard page close
+    )
   )
-) # Shiny U Close
+)
