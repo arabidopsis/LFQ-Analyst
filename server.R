@@ -973,7 +973,7 @@ server <- function(input, output, session) {
             envir = new.env(parent = globalenv())
           )
         },
-        finally = function() {
+        finally = {
           file.remove(tempReport)
         }
       )
