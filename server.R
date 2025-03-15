@@ -965,10 +965,17 @@ server <- function(input, output, session) {
       )
 
       # Knit the document, passing in the `params` list
-      rmarkdown::render(tempReport,
-        output_file = file,
-        params = params,
-        envir = new.env(parent = globalenv())
+      tryCatch(
+        {
+          rmarkdown::render(tempReport,
+            output_file = file,
+            params = params,
+            envir = new.env(parent = globalenv())
+          )
+        },
+        finally = function() {
+          file.remove(tempReport)
+        }
       )
     }
   )
