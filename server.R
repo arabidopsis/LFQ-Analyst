@@ -1,5 +1,39 @@
 # Define server logic to read selected file ----
 library("shiny", quietly = TRUE)
+
+significantBox <- function(row_data, max_frac = 0.2) {
+  num_signif <- nrow(row_data[row_data$significant, ])
+  num_total <- nrow(row_data)
+
+  frac <- num_signif / num_total
+
+  value <- paste0(signif(frac * 100, digits = 3), "%")
+  title <- paste0(
+    num_signif,
+    " out of ",
+    num_total,
+    " proteins differentially expressed"
+  )
+  if (frac > max_frac) {
+    title <- paste(title, "(too large!)")
+    icon <- "minus"
+    theme <- "text-warning"
+  } else if (frac == 0) {
+    icon <- "thumbs-down"
+    theme <- "text-danger"
+  } else {
+    icon <- "thumbs-up"
+    theme <- "text-success"
+  }
+  bslib::value_box(
+    title = title,
+    value = value,
+    showcase = shiny::icon(icon),
+    theme = theme,
+    height = "100%"
+  )
+}
+
 server <- function(input, output, session) {
   options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
 
@@ -9,29 +43,30 @@ server <- function(input, output, session) {
       return()
     }
     shinyjs::hide("quickstart_info")
-    shinyjs::show("downloadbox")
+    # shinyjs::show("downloadbox")
+    shinyjs::show("analysis_id")
   })
 
-  observeEvent(input$analyze, {
-    if (input$analyze == 0) {
-      return()
-    }
-    shinyjs::show("results_tab")
-  })
+  # observeEvent(input$analyze, {
+  #   if (input$analyze == 0) {
+  #     return()
+  #   }
+  #   shinyjs::show("results_tab")
+  # })
 
-  observeEvent(input$analyze, {
-    if (input$analyze == 0) {
-      return()
-    }
-    shinyjs::show("qc_tab")
-  })
+  # observeEvent(input$analyze, {
+  #   if (input$analyze == 0) {
+  #     return()
+  #   }
+  #   shinyjs::show("qc_tab")
+  # })
 
-  observeEvent(input$analyze, {
-    if (input$analyze == 0) {
-      return()
-    }
-    shinyjs::show("enrichment_tab")
-  })
+  # observeEvent(input$analyze, {
+  #   if (input$analyze == 0) {
+  #     return()
+  #   }
+  #   shinyjs::show("enrichment_tab")
+  # })
 
   ## Shinyalert
   observeEvent(input$analyze, {
@@ -554,34 +589,38 @@ server <- function(input, output, session) {
     return(pathway_list)
   })
 
-
-  #### Interactive UI
-  output$significantBox <- shinydashboard::renderInfoBox({
-    num_total <- dep() %>%
-      nrow()
-    num_signif <- dep() %>%
-      .[SummarizedExperiment::rowData(.)$significant, ] %>%
-      nrow()
-    frac <- num_signif / num_total
-
-    info_box <- shinydashboard::infoBox("Significant proteins",
-      paste0(
-        num_signif,
-        " out of ",
-        num_total
-      ),
-      paste0(
-        signif(frac * 100, digits = 3),
-        "% of proteins differentially expressed across all conditions"
-      ),
-      icon = icon("stats", lib = "glyphicon"),
-      color = "olive",
-      # fill = TRUE,
-      width = 4
-    )
-
-    return(info_box)
+  observeEvent(dep(), {
+    output$significantBox <- renderUI({
+      significantBox(SummarizedExperiment::rowData(dep()))
+    })
   })
+  #### Interactive UI
+  # output$significantBox <- shinydashboard::renderInfoBox({
+  #   num_total <- dep() %>%
+  #     nrow()
+  #   num_signif <- dep() %>%
+  #     .[SummarizedExperiment::rowData(.)$significant, ] %>%
+  #     nrow()
+  #   frac <- num_signif / num_total
+
+  #   info_box <- shinydashboard::infoBox("Significant proteins",
+  #     paste0(
+  #       num_signif,
+  #       " out of ",
+  #       num_total
+  #     ),
+  #     paste0(
+  #       signif(frac * 100, digits = 3),
+  #       "% of proteins differentially expressed across all conditions"
+  #     ),
+  #     icon = icon("stats", lib = "glyphicon"),
+  #     color = "olive",
+  #     # fill = TRUE,
+  #     width = 4
+  #   )
+
+  #   return(info_box)
+  # })
 
   ##### Get results dataframe from Summarizedexperiment object
   data_result <- reactive({
