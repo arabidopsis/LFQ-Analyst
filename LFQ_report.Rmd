@@ -4,7 +4,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   data: NA
   alpha: NA
-  lfc: NA
+  log_fold_change: NA
   num_signif: NA
   tested_contrasts: NA
   numbers_input: NA
@@ -37,7 +37,7 @@ Statistical analysis was performed using an in-house generated R script based on
 
 * Tested pairwise comparisons = <span style="color:blue">`r params$tested_contrasts`</span>  
 * Adjusted _p-value_ cutoff <= <span style="color:blue">`r params$alpha`</span>  
-* Log fold change cutoff >= <span style="color:blue">`r params$lfc`</span>  
+* Log fold change cutoff >= <span style="color:blue">`r params$log_fold_change`</span>  
 
 ## Results
 
@@ -76,7 +76,7 @@ print(params$cvs_input())
 
 Protein quantified per sample (after pre-processing).
 
-```{r numbers, echo=FALSE, warning=FALSE, results='hide', message=FALSE }
+```{r numbers_plot, echo=FALSE, warning=FALSE, results='hide', message=FALSE }
 print(params$numbers_input())
 ```
 \pagebreak
@@ -84,7 +84,7 @@ print(params$numbers_input())
 Protein overlap in all samples.
 
 
-```{r coverage, echo=FALSE, warning=FALSE}
+```{r coverage_plot, echo=FALSE, warning=FALSE}
 print(params$coverage_input())
 ```
 \pagebreak

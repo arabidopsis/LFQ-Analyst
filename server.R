@@ -133,7 +133,7 @@ server <- function(input, output, session) {
 
 
   maxquant_data_input <- eventReactive(input$analyze, {
-    inFile <- input$file1
+    inFile <- input$maxquant_file
     if (is.null(inFile)) {
       return(NULL)
     }
@@ -149,7 +149,7 @@ server <- function(input, output, session) {
 
   # observeEvent(input$analyze,{
   #   exp_design<-reactive({
-  #     inFile<-input$file2
+  #     inFile<-input$exp_design_file
   #     if (is.null(inFile))
   #       return(NULL)
   #     temp_df<-read.table(inFile$datapath,
@@ -162,7 +162,7 @@ server <- function(input, output, session) {
   #   })
   # })
   exp_design_input <- eventReactive(input$analyze, {
-    inFile <- input$file2
+    inFile <- input$exp_design_file
     if (is.null(inFile)) {
       return(NULL)
     }
@@ -280,10 +280,10 @@ server <- function(input, output, session) {
   dep <- reactive({
     if (input$fdr_correction == "BH") {
       diff_all <- test_limma(imputed_data(), type = "all", paired = input$paired)
-      DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
+      DEP::add_rejections(diff_all, alpha = input$p_value, lfc = input$log_fold_change)
     } else {
       diff_all <- DEP::test_diff(imputed_data(), type = "all")
-      DEP::add_rejections(diff_all, alpha = input$p, lfc = input$lfc)
+      DEP::add_rejections(diff_all, alpha = input$p_value, lfc = input$log_fold_change)
     }
   })
 
@@ -455,10 +455,10 @@ server <- function(input, output, session) {
     protein_selected <- df[input$contents_rows_selected, 1]
 
     if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 8) {
-      plot_protein(dep(), protein_selected, input$type)
+      plot_protein(dep(), protein_selected, input$protein_plot_type)
     } else {
-      protein_plot <- plot_protein(dep(), protein_selected, input$type)
-      protein_plot + ggplot2::scale_color_brewer(palette = "Paired")
+      pp <- plot_protein(dep(), protein_selected, input$protein_plot_type)
+      pp + ggplot2::scale_color_brewer(palette = "Paired")
     }
   })
 
@@ -732,19 +732,19 @@ server <- function(input, output, session) {
 
 
   ### QC Outputs
-  output$sample_corr <- renderPlot({
+  output$sample_corr_plot <- renderPlot({
     correlation_input()
   })
 
-  output$sample_cvs <- renderPlot({
+  output$sample_cvs_plot <- renderPlot({
     cvs_input()
   })
 
-  output$norm <- renderPlot({
+  output$normalization_plot <- renderPlot({
     norm_input()
   })
 
-  output$missval <- renderPlot({
+  output$missval_plot <- renderPlot({
     missval_input()
   })
 
@@ -752,7 +752,7 @@ server <- function(input, output, session) {
     detect_input()
   })
 
-  output$imputation <- renderPlot({
+  output$imputation_plot <- renderPlot({
     imputation_input()
   })
 
@@ -760,11 +760,11 @@ server <- function(input, output, session) {
     p_hist_input()
   })
 
-  output$numbers <- renderPlot({
+  output$numbers_plot <- renderPlot({
     numbers_input()
   })
 
-  output$coverage <- renderPlot({
+  output$coverage_plot <- renderPlot({
     coverage_input()
   })
 
@@ -867,7 +867,7 @@ server <- function(input, output, session) {
   ## Protein plot download
   output$downloadProtein <- downloadHandler(
     filename = function() {
-      paste0(input$type, ".pdf")
+      paste0(input$protein_plot_type, ".pdf")
     },
     content = function(file) {
       pdf(file)
@@ -946,8 +946,8 @@ server <- function(input, output, session) {
       # Set up parameters to pass to Rmd document
       params <- list(
         data = processed_data,
-        alpha = input$p,
-        lfc = input$lfc,
+        alpha = input$p_value,
+        log_fold_change = input$log_fold_change,
         num_signif = sig_proteins,
         pg_width = pg_width,
         tested_contrasts = tested_contrasts,

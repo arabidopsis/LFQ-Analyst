@@ -78,7 +78,7 @@ results_table <- function() {
 # cluster_number
 # downloadCluster
 # download_hm_svg
-# type
+# protein_plot_type
 # protein_plot
 # downloadProtein
 results_plots <- function() {
@@ -158,7 +158,7 @@ results_plots <- function() {
         title = "Protein Plot",
         fluidRow(
           shinydashboard::box(
-            radioButtons("type",
+            radioButtons("protein_plot_type",
               "Plot type",
               choices = c(
                 "Box Plot" = "boxplot",
@@ -185,19 +185,19 @@ results_plots <- function() {
 
 # pca_plot
 # download_pca_svg
-# sample_corr
+# sample_corr_plot
 # download_corr_svg
-# sample_cvs
+# sample_cvs_plot
 # download_cvs_svg
-# numbers
+# numbers_plot
 # download_num_svg
-# coverage
+# coverage_plot
 # download_cov_svg
-# norm
+# normalization_plot
 # download_norm_svg
-# missval
+# missval_plot
 # download_missval_svg
-# imputation
+# imputation_plot
 # download_imp_svg
 qc_plots <- function() {
   shinydashboard::tabBox(
@@ -209,37 +209,37 @@ qc_plots <- function() {
     ),
     tabPanel(
       title = "Sample Correlation",
-      plotOutput("sample_corr", height = 600),
+      plotOutput("sample_corr_plot", height = 600),
       downloadButton("download_corr_svg", "Save svg")
     ),
     tabPanel(
       title = "Sample CVs",
-      plotOutput("sample_cvs", height = 600),
+      plotOutput("sample_cvs_plot", height = 600),
       downloadButton("download_cvs_svg", "Save svg")
     ),
     tabPanel(
       title = "Protein Numbers",
-      plotOutput("numbers", height = 600),
+      plotOutput("numbers_plot", height = 600),
       downloadButton("download_num_svg", "Save svg")
     ),
     tabPanel(
       title = "Sample coverage",
-      plotOutput("coverage", height = 600),
+      plotOutput("coverage_plot", height = 600),
       downloadButton("download_cov_svg", "Save svg")
     ),
     tabPanel(
       title = "Normalization",
-      plotOutput("norm", height = 600),
+      plotOutput("normalization_plot", height = 600),
       downloadButton("download_norm_svg", "Save svg")
     ),
     tabPanel(
       title = "Missing values - Heatmap",
-      plotOutput("missval", height = 600),
+      plotOutput("missval_plot", height = 600),
       downloadButton("download_missval_svg", "Save svg")
     ),
     tabPanel(
       title = "Imputation",
-      plotOutput("imputation", height = 600),
+      plotOutput("imputation_plot", height = 600),
       downloadButton("download_imp_svg", "Save svg")
     )
   )
@@ -313,11 +313,11 @@ enrichment_box <- function() {
 }
 
 
-# file1
-# file2
+# maxquant_file
+# exp_design_file
 # analyze
-# p
-# lfc
+# p_value
+# log_fold_change
 # paired
 # imputation
 # fdr_correction
@@ -330,7 +330,7 @@ sidebar <- function() {
       tabName = "analysis", icon = icon("flask"),
       startExpanded = TRUE,
       # menuItem("Input Files", tabName="file", icon=icon("file"), #selected = TRUE,
-      fileInput("file1",
+      fileInput("maxquant_file",
         "Upload MaxQuant ProteinGroups.txt",
         accept = c(
           "text/csv",
@@ -338,7 +338,7 @@ sidebar <- function() {
           ".csv"
         )
       ),
-      fileInput("file2",
+      fileInput("exp_design_file",
         "Upload Experimental Design Matrix",
         accept = c(
           "text/csv",
@@ -351,11 +351,11 @@ sidebar <- function() {
       tags$hr(),
       shinydashboard::menuItem("Advanced Options",
         tabName = "advanced", icon = icon("cogs"),
-        numericInput("p",
+        numericInput("p_value",
           "Adjusted p-value cutoff",
           min = 0.0001, max = 0.1, value = 0.05
         ),
-        numericInput("lfc",
+        numericInput("log_fold_change",
           "Log2 fold change cutoff",
           min = 0, max = 10, value = 1
         ),
@@ -388,13 +388,15 @@ sidebar <- function() {
     ), tabName = "analysis")
   )
 }
+
+
 analysis_tab <- function() {
   shinydashboard::tabItem(
     tabName = "analysis",
     div(
       id = "quickstart_info",
       quick_start_page()
-    ), # QUICKSTART INFO CLOSE
+    ),
     shinyjs::hidden(div(
       id = "downloadbox",
       top_row()
