@@ -24,7 +24,6 @@
 # Adjusted.P.value <- ""
 # Term <- ""
 # miss_val <- ""
-# `%>%` <- magrittr::`%>%`
 # Protein.names <- ""
 # value <- ""
 # log_odds <- ""
