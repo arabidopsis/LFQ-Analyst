@@ -164,9 +164,8 @@ results_plots <- function() {
           downloadButton("downloadProtein", "Download Plot")
         )
       )
-      # verbatimTextOutput("protein_info"))
     )
-  ) # box or column end
+  )
 }
 
 qc_plots <- function() {
@@ -202,9 +201,6 @@ qc_plots <- function() {
       plotOutput("norm", height = 600),
       downloadButton("download_norm_svg", "Save svg")
     ),
-    # tabPanel(title = "Missing values - Quant",
-    #          plotOutput("detect", height = 600)
-    # ),
     tabPanel(
       title = "Missing values - Heatmap",
       plotOutput("missval", height = 600),
@@ -214,11 +210,8 @@ qc_plots <- function() {
       title = "Imputation",
       plotOutput("imputation", height = 600),
       downloadButton("download_imp_svg", "Save svg")
-    ) # ,
-    # tabPanel(title = "p-value Histogram",
-    #          plotOutput("p_hist", height = 600)
-    # )
-  ) # Tab box close
+    )
+  )
 }
 
 enrichment_box <- function() {
