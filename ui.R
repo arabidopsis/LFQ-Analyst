@@ -36,6 +36,9 @@ quick_start_page <- function() {
   )
 }
 
+# downloadTable
+# downloadButton
+# downloadreport
 top_row <- function() {
   fluidRow(
     shinydashboard::box(
@@ -53,7 +56,8 @@ top_row <- function() {
   )
 }
 
-
+# contents
+# original
 results_table <- function() {
   shinydashboard::box(
     title = "LFQ Results Table",
@@ -66,6 +70,20 @@ results_table <- function() {
     solidHeader = TRUE
   )
 }
+# volcano_cntrst
+# fontsize
+# check_names
+# p_adj
+# volcano protein_brush protein_click
+# downloadVolcano
+# resetPlot
+# heatmap
+# cluster_number
+# downloadCluster
+# download_hm_svg
+# type
+# protein_plot
+# downloadProtein
 results_plots <- function() {
   shinydashboard::box(
     width = 6,
@@ -168,6 +186,22 @@ results_plots <- function() {
   )
 }
 
+# pca_plot
+# download_pca_svg
+# sample_corr
+# download_corr_svg
+# sample_cvs
+# download_cvs_svg
+# numbers
+# download_num_svg
+# coverage
+# download_cov_svg
+# norm
+# download_norm_svg
+# missval
+# download_missval_svg
+# imputation
+# download_imp_svg
 qc_plots <- function() {
   shinydashboard::tabBox(
     title = "QC Plots", width = 12,
@@ -214,6 +248,16 @@ qc_plots <- function() {
   )
 }
 
+# contrast
+# go_database
+# go_analysis
+# spinner_go
+# downloadGO
+# contrast_1
+# pathway_database
+# pathway_analysis
+# spinner_pa
+# downloadPA
 enrichment_box <- function() {
   shinydashboard::tabBox(
     title = "Enrichment", width = 12,
@@ -271,53 +315,17 @@ enrichment_box <- function() {
   ) # Tab box close
 }
 
-analysis_tab <- function() {
-  shinydashboard::tabItem(
-    tabName = "analysis",
-    div(
-      id = "quickstart_info",
-      quick_start_page()
-    ), # QUICKSTART INFO CLOSE
-    shinyjs::hidden(div(
-      id = "downloadbox",
-      top_row()
-    )), # close div and first row
 
-    # align save button
-    tags$style(type = "text/css", "#downloadButton { width:100%; margin-top: 25px;}"),
-    tags$style(type = "text/css", "#downloadreport { width:100%; vertical-align- middle; margin-top: 25px;
-                 margin-bottom: 25px;}"),
-    # tags$style(type='text/css', "#downloadPlots { width:100%; margin-top: 25px;}"),
-
-    tags$br(), # Blank lines
-    tags$br(),
-
-    ## Data table and result plots box
-    fluidRow(
-      shinyjs::hidden(div(
-        id = "results_tab",
-        results_table(),
-        results_plots()
-      ))
-    ),
-
-    ## QC Box
-    fluidRow(
-      shinyjs::hidden(div(
-        id = "qc_tab",
-        column(
-          width = 6,
-          qc_plots()
-        ),
-        column(
-          width = 6,
-          enrichment_box()
-        )
-      ))
-    )
-  )
-}
-
+# file1
+# file2
+# analyze
+# p
+# lfc
+# paired
+# imputation
+# fdr_correction
+# single_peptide
+# k_number
 sidebar <- function() {
   shinydashboard::sidebarMenu(
     id = "tabs_selected",
@@ -381,6 +389,52 @@ sidebar <- function() {
       ),
       tags$hr()
     ), tabName = "analysis")
+  )
+}
+analysis_tab <- function() {
+  shinydashboard::tabItem(
+    tabName = "analysis",
+    div(
+      id = "quickstart_info",
+      quick_start_page()
+    ), # QUICKSTART INFO CLOSE
+    shinyjs::hidden(div(
+      id = "downloadbox",
+      top_row()
+    )), # close div and first row
+
+    # align save button
+    tags$style(type = "text/css", "#downloadButton { width:100%; margin-top: 25px;}"),
+    tags$style(type = "text/css", "#downloadreport { width:100%; vertical-align- middle; margin-top: 25px;
+                 margin-bottom: 25px;}"),
+    # tags$style(type='text/css', "#downloadPlots { width:100%; margin-top: 25px;}"),
+
+    tags$br(), # Blank lines
+    tags$br(),
+
+    ## Data table and result plots box
+    fluidRow(
+      shinyjs::hidden(div(
+        id = "results_tab",
+        results_table(),
+        results_plots()
+      ))
+    ),
+
+    ## QC Box
+    fluidRow(
+      shinyjs::hidden(div(
+        id = "qc_tab",
+        column(
+          width = 6,
+          qc_plots()
+        ),
+        column(
+          width = 6,
+          enrichment_box()
+        )
+      ))
+    )
   )
 }
 

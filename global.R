@@ -1,10 +1,11 @@
 VERSION <- "v1.3"
 
+library("shiny")
+loadNamespace("DEP")
 # library("SummarizedExperiment")
 # library("tidyverse")
 # library("DEP")
 # library("testthat")
-library("shiny")
 # library("shinydashboard")
 # library("shinyjs")
 # library("shinyalert")
@@ -17,6 +18,7 @@ library("shiny")
 # library("svglite")
 # library("shinycssloaders")
 # library("shiny.info")
+
 source("R/functions.R")
 source("R/volcano_function.R")
 source("R/tests.R")
