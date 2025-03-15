@@ -245,12 +245,12 @@ qc_plots <- function() {
   )
 }
 
-# contrast
+# contrast_placeholder
 # go_database
 # go_analysis
 # spinner_go
 # downloadGO
-# contrast_1
+# contrast_1_placeholder
 # pathway_database
 # pathway_analysis
 # spinner_pa
@@ -263,7 +263,7 @@ enrichment_box <- function() {
       fluidRow(
         column(
           6,
-          uiOutput("contrast")
+          uiOutput("contrast_placeholder")
         ),
         column(
           6,
@@ -289,7 +289,7 @@ enrichment_box <- function() {
       fluidRow(
         column(
           6,
-          uiOutput("contrast_1")
+          uiOutput("contrast_1_placeholder")
         ),
         column(
           6,

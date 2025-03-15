@@ -63,7 +63,7 @@ server <- function(input, output, session) {
   })
 
   ## comparisons
-  output$contrast <- renderUI({
+  output$contrast_placeholder <- renderUI({
     if (!is.null(comparisons())) {
       df <- SummarizedExperiment::rowData(dep())
       cols <- grep("_significant$", colnames(df))
@@ -74,11 +74,11 @@ server <- function(input, output, session) {
     }
   })
 
-  output$contrast_1 <- renderUI({
+  output$contrast_1_placeholder <- renderUI({
     if (!is.null(comparisons())) {
       df <- SummarizedExperiment::rowData(dep())
       cols <- grep("_significant$", colnames(df))
-      selectizeInput("contrast",
+      selectizeInput("contrast_1",
         "Comparison",
         choices = gsub("_significant", "", colnames(df)[cols])
       )
