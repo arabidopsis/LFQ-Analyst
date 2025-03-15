@@ -92,7 +92,8 @@ server <- function(input, output, session) {
       cols <- grep("_significant$", colnames(df))
       selectizeInput("volcano_cntrst",
         "Comparison",
-        choices = gsub("_significant", "", colnames(df)[cols])
+        choices = gsub("_significant", "", colnames(df)[cols]),
+        options = list(dropdownParent = "body")
       )
     }
   })
@@ -104,7 +105,8 @@ server <- function(input, output, session) {
       cols <- grep("_significant$", colnames(df))
       selectizeInput("contrast",
         "Comparison",
-        choices = gsub("_significant", "", colnames(df)[cols])
+        choices = gsub("_significant", "", colnames(df)[cols]),
+        options = list(dropdownParent = "body")
       )
     }
   })
@@ -115,47 +117,49 @@ server <- function(input, output, session) {
       cols <- grep("_significant$", colnames(df))
       selectizeInput("contrast_1",
         "Comparison",
-        choices = gsub("_significant", "", colnames(df)[cols])
+        choices = gsub("_significant", "", colnames(df)[cols]),
+        options = list(dropdownParent = "body")
       )
     }
   })
 
-  output$downloadTable <- renderUI({
-    if (!is.null(dep())) {
-      selectizeInput(
-        "dataset",
-        "Choose a dataset to save",
-        c(
-          "Results", "Original_matrix",
-          "Imputed_matrix",
-          "Full_dataset"
-        )
-      )
-    }
-  })
+  # output$downloadTable <- renderUI({
+  #   if (!is.null(dep())) {
+  #     selectizeInput(
+  #       "dataset",
+  #       "Choose a dataset to save",
+  #       choice = c(
+  #         "Results", "Original_matrix",
+  #         "Imputed_matrix",
+  #         "Full_dataset"
+  #       ),
+  #       options = list(dropdownParent = "body")
+  #     )
+  #   }
+  # })
 
-  output$downloadButton <- renderUI({
-    if (!is.null(dep())) {
-      downloadButton("downloadData", "Save")
-    }
-  })
+  # output$downloadButton <- renderUI({
+  #   if (!is.null(dep())) {
+  #     downloadButton("downloadData", "Save")
+  #   }
+  # })
 
-  output$downloadZip <- renderUI({
-    if (!is.null(dep())) {
-      downloadButton("downloadZip1", "Download result plots")
-    }
-  })
-  output$downloadreport <- renderUI({
-    if (!is.null(dep())) {
-      downloadButton("downloadReport", "Download Report")
-    }
-  })
+  # output$downloadZip <- renderUI({
+  #   if (!is.null(dep())) {
+  #     downloadButton("downloadZip1", "Download result plots")
+  #   }
+  # })
+  # output$downloadreport <- renderUI({
+  #   if (!is.null(dep())) {
+  #     downloadButton("downloadReport", "Download Report")
+  #   }
+  # })
 
-  output$downloadPlots <- renderUI({
-    if (!is.null(dep())) {
-      downloadButton("downloadPlots1", "Download Plots")
-    }
-  })
+  # output$downloadPlots <- renderUI({
+  #   if (!is.null(dep())) {
+  #     downloadButton("downloadPlots1", "Download Plots")
+  #   }
+  # })
 
 
   ## make reactive elements

@@ -31,12 +31,23 @@ top_row <- function() {
   bslib::layout_columns(
     col_widths = c(4, 4, 4),
     bslib::card(
-      uiOutput("downloadTable"),
-      uiOutput("downloadButton")
+      bslib::layout_columns(
+        selectizeInput(
+          "dataset",
+          "Choose a dataset to save",
+          choice = c(
+            "Results", "Original_matrix",
+            "Imputed_matrix",
+            "Full_dataset"
+          ),
+          options = list(dropdownParent = "body")
+        ),
+        downloadButton("downloadData", "Save")
+      )
     ),
     uiOutput("significantBox"),
     bslib::card(
-      uiOutput("downloadreport")
+      downloadButton("downloadReport", "Download Report")
     )
   )
 }
@@ -292,54 +303,6 @@ enrichment_box <- function() {
 
 
 
-
-# analysis_tab2 <- function() {
-#   shinydashboard::tabItem(
-#     tabName = "analysis",
-#     div(
-#       id = "quickstart_info",
-#       quick_start_page()
-#     ),
-#     shinyjs::hidden(div(
-#       id = "downloadbox",
-#       top_row()
-#     )), # close div and first row
-
-#     # align save button
-#     tags$style(type = "text/css", "#downloadButton { width:100%; margin-top: 25px;}"),
-#     tags$style(type = "text/css", "#downloadreport { width:100%; vertical-align- middle; margin-top: 25px;
-#                  margin-bottom: 25px;}"),
-#     # tags$style(type='text/css', "#downloadPlots { width:100%; margin-top: 25px;}"),
-
-#     tags$br(), # Blank lines
-#     tags$br(),
-
-#     ## Data table and result plots box
-#     fluidRow(
-#       shinyjs::hidden(div(
-#         id = "results_tab",
-#         results_table(),
-#         results_plots()
-#       ))
-#     ),
-
-#     ## QC Box
-#     fluidRow(
-#       shinyjs::hidden(div(
-#         id = "qc_tab",
-#         column(
-#           width = 6,
-#           qc_plots()
-#         ),
-#         column(
-#           width = 6,
-#           enrichment_box()
-#         )
-#       ))
-#     )
-#   )
-# }
-
 analysis_tab <- function() {
   tagList(
     div(
@@ -359,36 +322,6 @@ analysis_tab <- function() {
     ))
   )
 }
-
-# ui_old <- shinydashboard::dashboardPage(
-#   skin = "blue",
-#   shinydashboard::dashboardHeader(title = "LFQ-Analyst"),
-#   # disable = TRUE),# Disable title bar
-#   shinydashboard::dashboardSidebar(
-#     # sidebar()
-#   ),
-#   shinydashboard::dashboardBody(
-#     # shinyjs::useShinyjs(), # imp to use shinyjs functions
-#     tags$head(
-#       tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css")
-#     ),
-#     tags$style(
-#       ".box {
-#         border-top: none;
-#         box-shadow: 0 0px 0px rgb(0 0 0 / 10%);
-#         }"
-#     ),
-#     shinydashboard::tabItems(
-#       analysis_tab2()
-#     ),
-#     tags$footer(
-#       tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
-#                Monash University"),
-#       align = "right"
-#     ),
-#     shiny.info::version(position = "bottom right")
-#   )
-# )
 
 
 # maxquant_file
