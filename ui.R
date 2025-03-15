@@ -20,12 +20,8 @@ quick_start_page <- function() {
                                 the imputation type, FDR correction method and/or number of clusters in heatmap
                                 in the", tags$b("Advanced Options")),
         tags$li("Press ", tags$b("'Start Analysis' ")),
-        tags$li(
-          tags$b("Hint: "), " Use the ", tags$b("User Guide "),
-          " tab for a detailed explanation of inputs, advanced options and outputs"
-        ),
         tags$li(tags$b("Note: "), " The experimental design file is not the", tags$b("'mqpar.xml' "), "file
-                        from MaxQuant. Use the example file template provided.")
+                        from MaxQuant.")
       ),
       br(),
       HTML('<center><img src="/static/img/LFQ_analyst.svg" width="500px"></center>'),
@@ -38,6 +34,7 @@ quick_start_page <- function() {
 
 # downloadTable
 # downloadButton
+# significantBox
 # downloadreport
 top_row <- function() {
   fluidRow(
@@ -454,7 +451,7 @@ ui <- shinyUI(
     shinydashboard::dashboardBody(
       shinyjs::useShinyjs(), # imp to use shinyjs functions
       tags$head(
-        tags$link(rel = "stylesheet", type = "text/css", href = "./css/custom.css")
+        tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css")
       ),
       tags$style(
         ".box {
