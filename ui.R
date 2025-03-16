@@ -2,6 +2,11 @@
 library("shiny", quietly = TRUE)
 
 
+mySvg <- function(id, text) {
+  downloadButton(id, text, class = "w-25 mx-auto")
+}
+
+ICON_ACTION <- icon("person-running")
 
 quick_start_page <- function() {
   bslib::card(
@@ -59,7 +64,7 @@ results_table <- function() {
     class = "border-success",
     bslib::card_header(class = "bg-success", "LFQ Results Table"),
     DT::dataTableOutput("contents"),
-    actionButton("original", "Refresh Table")
+    actionButton("original", "Refresh Table", icon = ICON_ACTION)
   )
 }
 # volcano_cntrst
@@ -112,7 +117,7 @@ results_plots <- function() {
           click = "protein_click"
         ),
         downloadButton("downloadVolcano", "Save Highlighted Plot"),
-        actionButton("resetPlot", "Clear Selection")
+        actionButton("resetPlot", "Clear Selection", icon = ICON_ACTION)
       )
     ),
     bslib::nav_panel(
@@ -126,7 +131,7 @@ results_plots <- function() {
         width = 6
       ),
       bslib::card(downloadButton("downloadCluster", "Save Cluster"),
-        downloadButton("download_hm_svg", "Save svg"),
+        mySvg("download_hm_svg", "Save svg"),
         width = 5
       )
       # # align save button
@@ -180,42 +185,42 @@ qc_plots <- function() {
     bslib::nav_panel(
       title = "PCA Plot",
       plotOutput("pca_plot", height = 600),
-      downloadButton("download_pca_svg", "Save svg")
+      mySvg("download_pca_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample Correlation",
       plotOutput("sample_corr_plot", height = 600),
-      downloadButton("download_corr_svg", "Save svg")
+      mySvg("download_corr_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample CVs",
       plotOutput("sample_cvs_plot", height = 600),
-      downloadButton("download_cvs_svg", "Save svg")
+      mySvg("download_cvs_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Protein Numbers",
       plotOutput("numbers_plot", height = 600),
-      downloadButton("download_num_svg", "Save svg")
+      mySvg("download_num_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample coverage",
       plotOutput("coverage_plot", height = 600),
-      downloadButton("download_cov_svg", "Save svg")
+      mySvg("download_cov_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Normalization",
       plotOutput("normalization_plot", height = 600),
-      downloadButton("download_norm_svg", "Save svg")
+      mySvg("download_norm_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Missing values - Heatmap",
       plotOutput("missval_plot", height = 600),
-      downloadButton("download_missval_svg", "Save svg")
+      mySvg("download_missval_svg", "Save svg")
     ),
     bslib::nav_panel(
       title = "Imputation",
       plotOutput("imputation_plot", height = 600),
-      downloadButton("download_imp_svg", "Save svg")
+      mySvg("download_imp_svg", "Save svg")
     ),
     bslib::nav_spacer(),
     bslib::nav_item("QC Plots")
@@ -248,7 +253,7 @@ enrichment_box <- function() {
           ),
           options = list(dropdownParent = "body")
         ),
-        actionButton("go_analysis", "Run Enrichment", class = "mt-4")
+        actionButton("go_analysis", "Run Enrichment", class = "mt-4 p-2", icon = ICON_ACTION)
       ),
       bslib::card(uiOutput("spinner_go")),
       downloadButton("downloadGO", "Download Table")
@@ -265,10 +270,10 @@ enrichment_box <- function() {
           ),
           options = list(dropdownParent = "body")
         ),
-        actionButton("pathway_analysis", "Run Enrichment"),
+        actionButton("pathway_analysis", "Run Enrichment", class = "mt-4 p-2", icon = ICON_ACTION),
       ),
       bslib::card(uiOutput("spinner_pa"), height = 400),
-      downloadButton("downloadPA", "Download Table", class = "mt-4")
+      downloadButton("downloadPA", "Download Table")
     )
   )
 }
@@ -334,7 +339,7 @@ sidebar_panel <- function() {
             )
           ),
           tags$hr(),
-          actionButton("analyze", "Start Analysis")
+          actionButton("analyze", "Start Analysis", icon = ICON_ACTION)
         ),
         bslib::accordion_panel(
           title = "Advanced Options",
@@ -400,10 +405,11 @@ ui <- shinyUI({
         # tags$link(rel = "icon", href = ICON),
         # tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css?v=1.5"),
         tags$style(HTML("
-          root: {
-            --bslib-spacer: 0px;
+          :root {
+            --bslib-spacer: .5rem;
           }
-          .card,.well {
+
+          .card, .well {
             --bs-card-border-radius: 0px;
             --bs-card-inner-border-radius: 0px;
           }
