@@ -29,7 +29,7 @@ quick_start_page <- function() {
 # downloadreport
 top_row <- function() {
   bslib::layout_columns(
-    col_widths = c(4, 4, 4),
+    col_widths = c(4, 5, 3),
     bslib::card(
       bslib::layout_columns(
         selectizeInput(
@@ -42,12 +42,12 @@ top_row <- function() {
           ),
           options = list(dropdownParent = "body")
         ),
-        downloadButton("downloadData", "Save")
+        downloadButton("downloadData", "Save", class = "mt-4")
       )
     ),
     uiOutput("significantBox"),
     bslib::card(
-      downloadButton("downloadReport", "Download Report")
+      downloadButton("downloadReport", "Download Report", class = "mt-4")
     )
   )
 }
@@ -82,14 +82,12 @@ results_plots <- function() {
     bslib::nav_panel(
       title = "Volcano plot",
       bslib::layout_columns(
-        col_widths = c(4, 4, 4),
-        bslib::card(uiOutput("volcano_cntrst"), width = 5),
-        bslib::card(
-          numericInput("fontsize",
-            "Font size",
-            min = 0, max = 8, value = 4
-          ),
-          width = 3
+        # col_widths = c(4, 4, 4),
+        style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
+        uiOutput("volcano_cntrst"),
+        numericInput("fontsize",
+          "Font size",
+          min = 0, max = 8, value = 4
         ),
         bslib::card(
           checkboxInput("check_names",
@@ -99,16 +97,12 @@ results_plots <- function() {
           checkboxInput("p_adj",
             "Adjusted p values",
             value = FALSE
-          ),
-          width = 4
-        ),
-        tags$p("Select protein from LFQ Results Table to highlight on the plot OR
-                                                  drag the mouse on plot to show expression of proteins in Table")
-        # Add text line
-        # tags$p("OR"),
-        #  tags$p("Drag the mouse on plot to show expression of proteins in Table")
+          )
+        )
       ),
-      fluidRow(
+      tags$p("Select protein from LFQ Results Table to highlight on the plot OR
+                                                  drag the mouse on plot to show expression of proteins in Table"),
+      bslib::card(
         plotOutput("volcano",
           height = 600,
           # hover = "protein_hover"),
@@ -119,52 +113,44 @@ results_plots <- function() {
         ),
         downloadButton("downloadVolcano", "Save Highlighted Plot"),
         actionButton("resetPlot", "Clear Selection")
-        # )),
       )
     ),
     bslib::nav_panel(
       title = "Heatmap",
-      fluidRow(
-        plotOutput("heatmap", height = 600)
+      plotOutput("heatmap", height = 600),
+      bslib::card(
+        numericInput("cluster_number",
+          "Cluster to download",
+          min = 1, max = 6, value = 1
+        ),
+        width = 6
       ),
-      fluidRow(
-        bslib::card(
-          numericInput("cluster_number",
-            "Cluster to download",
-            min = 1, max = 6, value = 1
-          ),
-          width = 6
-        ),
-        bslib::card(downloadButton("downloadCluster", "Save Cluster"),
-          downloadButton("download_hm_svg", "Save svg"),
-          width = 5
-        ),
-        # # align save button
-        # tags$style(type = "text/css", "#downloadCluster {margin-top: 25px;}"),
-        # tags$style(type = "text/css", "#download_hm_svg {margin-top: 25px;}")
+      bslib::card(downloadButton("downloadCluster", "Save Cluster"),
+        downloadButton("download_hm_svg", "Save svg"),
+        width = 5
       )
+      # # align save button
+      # tags$style(type = "text/css", "#downloadCluster {margin-top: 25px;}"),
+      # tags$style(type = "text/css", "#download_hm_svg {margin-top: 25px;}")
     ),
     bslib::nav_panel(
       title = "Protein Plot",
-      fluidRow(
-        bslib::card(
-          radioButtons("protein_plot_type",
-            "Plot type",
-            choices = c(
-              "Box Plot" = "boxplot",
-              "Violin Plot" = "violin",
-              "Interaction Plot" = "interaction",
-              "Intensity Plot" = "dot"
-            ),
-            selected = "boxplot",
-            inline = TRUE
+      bslib::card(
+        radioButtons("protein_plot_type",
+          "Plot type",
+          choices = c(
+            "Box Plot" = "boxplot",
+            "Violin Plot" = "violin",
+            "Interaction Plot" = "interaction",
+            "Intensity Plot" = "dot"
           ),
-          width = 12
-        ),
-        tags$p("Select one or more rows from LFQ Results Table to plot individual
-                                                  protein intesities across conditions and replicates")
+          selected = "boxplot",
+          inline = TRUE
+        )
       ),
-      fluidRow(
+      tags$p("Select one or more rows from LFQ Results Table to plot individual
+                                                  protein intesities across conditions and replicates"),
+      bslib::card(
         plotOutput("protein_plot"),
         downloadButton("downloadProtein", "Download Plot")
       )
@@ -190,7 +176,7 @@ results_plots <- function() {
 # download_imp_svg
 qc_plots <- function() {
   bslib::navset_card_underline(
-    title = "QC Plots",
+    # title = "QC Plots",
     bslib::nav_panel(
       title = "PCA Plot",
       plotOutput("pca_plot", height = 600),
@@ -230,7 +216,9 @@ qc_plots <- function() {
       title = "Imputation",
       plotOutput("imputation_plot", height = 600),
       downloadButton("download_imp_svg", "Save svg")
-    )
+    ),
+    bslib::nav_spacer(),
+    bslib::nav_item("QC Plots")
   )
 }
 
@@ -249,54 +237,38 @@ enrichment_box <- function() {
     title = "Enrichment",
     bslib::nav_panel(
       title = "Gene Ontology",
-      fluidRow(
-        column(
-          6,
-          uiOutput("contrast_placeholder")
+      bslib::layout_columns(
+        uiOutput("contrast_placeholder"),
+        selectizeInput(
+          "go_database", "GO database:",
+          choices = c(
+            "Molecular Function" = "GO_Molecular_Function_2021",
+            "Cellular Component" = "GO_Cellular_Component_2021",
+            "Biological Process" = "GO_Biological_Process_2021"
+          ),
+          options = list(dropdownParent = "body")
         ),
-        column(
-          6,
-          selectInput(
-            "go_database", "GO database:",
-            c(
-              "Molecular Function" = "GO_Molecular_Function_2021",
-              "Cellular Component" = "GO_Cellular_Component_2021",
-              "Biological Process" = "GO_Biological_Process_2021"
-            )
-          )
-        ),
-        column(12, actionButton("go_analysis", "Run Enrichment")),
-        column(
-          12,
-          bslib::card(width = 12, uiOutput("spinner_go"), height = 400)
-        ),
-        column(12, downloadButton("downloadGO", "Download Table"))
-      )
+        actionButton("go_analysis", "Run Enrichment", class = "mt-4")
+      ),
+      bslib::card(uiOutput("spinner_go")),
+      downloadButton("downloadGO", "Download Table")
     ),
     bslib::nav_panel(
       title = "Pathway enrichment",
-      fluidRow(
-        column(
-          6,
-          uiOutput("contrast_1_placeholder")
+      bslib::layout_columns(
+        uiOutput("contrast_1_placeholder"),
+        selectizeInput(
+          "pathway_database", "Pathway database:",
+          choices = c(
+            "KEGG" = "KEGG_2021_Human",
+            "Reactome" = "Reactome_2022"
+          ),
+          options = list(dropdownParent = "body")
         ),
-        column(
-          6,
-          selectInput(
-            "pathway_database", "Pathway database:",
-            c(
-              "KEGG" = "KEGG_2021_Human",
-              "Reactome" = "Reactome_2022"
-            )
-          )
-        ),
-        column(12, actionButton("pathway_analysis", "Run Enrichment")),
-        column(
-          12,
-          bslib::card(uiOutput("spinner_pa"), height = 400)
-        ),
-        column(12, downloadButton("downloadPA", "Download Table"))
-      )
+        actionButton("pathway_analysis", "Run Enrichment"),
+      ),
+      bslib::card(uiOutput("spinner_pa"), height = 400),
+      downloadButton("downloadPA", "Download Table", class = "mt-4")
     )
   )
 }
@@ -308,18 +280,20 @@ analysis_tab <- function() {
     div(
       id = "quickstart_info", quick_start_page()
     ),
-    shinyjs::hidden(div(
-      id = "analysis_id",
-      top_row(),
-      bslib::layout_columns(
-        results_table(),
-        results_plots()
-      ),
-      bslib::layout_columns(
-        qc_plots(),
-        enrichment_box()
+    shinyjs::hidden(
+      div(
+        id = "analysis_id",
+        top_row(),
+        bslib::layout_columns(
+          results_table(),
+          results_plots()
+        ),
+        bslib::layout_columns(
+          qc_plots(),
+          enrichment_box()
+        )
       )
-    ))
+    )
   )
 }
 
@@ -338,7 +312,7 @@ sidebar_panel <- function() {
   bslib::layout_sidebar(
     title = "Analysis",
     sidebar = bslib::sidebar(
-      width = "20em",
+      width = "20rem",
       bslib::accordion(
         bslib::accordion_panel(
           title = "Analysis", icon = icon("flask"),
@@ -360,7 +334,7 @@ sidebar_panel <- function() {
             )
           ),
           tags$hr(),
-          actionButton("analyze", "Start Analysis"),
+          actionButton("analyze", "Start Analysis")
         ),
         bslib::accordion_panel(
           title = "Advanced Options",
@@ -404,10 +378,16 @@ sidebar_panel <- function() {
   )
 }
 
+
+link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
+  href = "https://bioinformatics.erc.monash.edu/apps/LFQ-Analyst/",
+  target = "_blank"
+)
+
 ui <- shinyUI({
   bslib::page_navbar(
     title = tags$span("LFQ"),
-    theme = bslib::bs_theme(version = 5),
+    theme = bslib::bs_theme(version = 5, font_scale = .8),
     navbar_options = bslib::navbar_options(
       bg = "#0062cc"
     ),
@@ -419,17 +399,29 @@ ui <- shinyUI({
       tags$head(
         # tags$link(rel = "icon", href = ICON),
         # tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css?v=1.5"),
-        shinyjs::useShinyjs(), # imp to use shinyjs functions
+        tags$style(HTML("
+          root: {
+            --bslib-spacer: 0px;
+          }
+          .card,.well {
+            --bs-card-border-radius: 0px;
+            --bs-card-inner-border-radius: 0px;
+          }
+
+        ")),
+        shinyjs::useShinyjs() # imp to use shinyjs functions
       )
     ),
     bslib::nav_panel(
       title = "LFQ", value = "lfq", icon = icon("list"),
       sidebar_panel()
     ),
-    footer = tagList(
-      tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
-              Monash University"),
-      shiny.info::version(position = "bottom right")
-    )
+    bslib::nav_spacer(),
+    bslib::nav_item(link_LFQ)
+    # footer = tagList(
+    #   tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
+    #           Monash University"),
+    #   #shiny.info::version(position = "bottom right")
+    # )
   )
 })
