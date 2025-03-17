@@ -1,7 +1,7 @@
 [Unit]
 Description=LFQ Shiny Website
 [Service]
-ExecStart={{r_home|normpath}}/bin/Rscript --quiet -e "suppressWarnings(shiny::runApp('.',port={{port|default(4447)}}, display.mode='normal'))"
+ExecStart={{r_home|normpath}}/bin/Rscript --quiet -e "options(shiny.autoload.r = FALSE);suppressWarnings(shiny::runApp('.',port={{port|default(4447)}}, display.mode='normal'))"
 KillSignal=SIGTERM
 Restart=always
 RestartSec=10
