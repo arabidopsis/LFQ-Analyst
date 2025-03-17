@@ -1,6 +1,9 @@
 # Define server logic to read selected file ----
 library("shiny", quietly = TRUE)
 
+
+name_space <- shiny::NS("lfq")
+
 significantBox <- function(row_data, max_frac = 0.2) {
   num_signif <- nrow(row_data[row_data$significant, ])
   num_total <- nrow(row_data)
@@ -34,7 +37,7 @@ significantBox <- function(row_data, max_frac = 0.2) {
   )
 }
 
-server <- function(input, output, session) {
+server_bg <- function(input, output, session) {
   options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
 
   #  Show elements on clicking Start analysis button
@@ -86,11 +89,11 @@ server <- function(input, output, session) {
 
   #### ======= Render Functions
 
-  output$volcano_cntrst <- renderUI({
+  output$volcano_cntrst_placeholder <- renderUI({
     if (!is.null(comparisons())) {
       df <- SummarizedExperiment::rowData(dep())
       cols <- grep("_significant$", colnames(df))
-      selectizeInput("volcano_cntrst",
+      selectizeInput(name_space("volcano_cntrst"),
         "Comparison",
         choices = gsub("_significant", "", colnames(df)[cols]),
         options = list(dropdownParent = "body")
@@ -103,7 +106,7 @@ server <- function(input, output, session) {
     if (!is.null(comparisons())) {
       df <- SummarizedExperiment::rowData(dep())
       cols <- grep("_significant$", colnames(df))
-      selectizeInput("contrast",
+      selectizeInput(name_space("contrast"),
         "Comparison",
         choices = gsub("_significant", "", colnames(df)[cols]),
         options = list(dropdownParent = "body")
@@ -115,51 +118,13 @@ server <- function(input, output, session) {
     if (!is.null(comparisons())) {
       df <- SummarizedExperiment::rowData(dep())
       cols <- grep("_significant$", colnames(df))
-      selectizeInput("contrast_1",
+      selectizeInput(name_space("contrast_1"),
         "Comparison",
         choices = gsub("_significant", "", colnames(df)[cols]),
         options = list(dropdownParent = "body")
       )
     }
   })
-
-  # output$downloadTable <- renderUI({
-  #   if (!is.null(dep())) {
-  #     selectizeInput(
-  #       "dataset",
-  #       "Choose a dataset to save",
-  #       choice = c(
-  #         "Results", "Original_matrix",
-  #         "Imputed_matrix",
-  #         "Full_dataset"
-  #       ),
-  #       options = list(dropdownParent = "body")
-  #     )
-  #   }
-  # })
-
-  # output$downloadButton <- renderUI({
-  #   if (!is.null(dep())) {
-  #     downloadButton("downloadData", "Save")
-  #   }
-  # })
-
-  # output$downloadZip <- renderUI({
-  #   if (!is.null(dep())) {
-  #     downloadButton("downloadZip1", "Download result plots")
-  #   }
-  # })
-  # output$downloadreport <- renderUI({
-  #   if (!is.null(dep())) {
-  #     downloadButton("downloadReport", "Download Report")
-  #   }
-  # })
-
-  # output$downloadPlots <- renderUI({
-  #   if (!is.null(dep())) {
-  #     downloadButton("downloadPlots1", "Download Plots")
-  #   }
-  # })
 
 
   ## make reactive elements
@@ -235,7 +200,7 @@ server <- function(input, output, session) {
     }
 
 
-    message(exp_design())
+    # message(exp_design())
     if (any(grepl("+", maxquant_data()$Reverse))) {
       filtered_data <- dplyr::filter(maxquant_data(), Reverse != "+")
     } else {
@@ -557,6 +522,7 @@ server <- function(input, output, session) {
       message = "Gene ontology enrichment is in progress",
       detail = "Please wait for a while",
       value = 0,
+      session = session,
       {
         for (i in 1:15) {
           incProgress(1 / 15)
@@ -580,7 +546,7 @@ server <- function(input, output, session) {
   })
 
   pathway_input <- eventReactive(input$pathway_analysis, {
-    progress_indicator("Pathway Analysis is running....")
+    progress_indicator("Pathway Analysis is running....", session)
     enrichment_output_test(dep(), input$pathway_database)
     pathway_results <- test_gsea_mod(dep(), databases = input$pathway_database, contrasts = TRUE)
     null_enrichment_test(pathway_results)
@@ -733,11 +699,12 @@ server <- function(input, output, session) {
     pca_input()
   })
 
-  output$heatmap <- renderPlot({
+  output$heatmap_plot <- renderPlot({
     withProgress(
       message = "Heatmap rendering is in progress",
       detail = "Please wait for a while",
       value = 0,
+      session = session,
       {
         for (i in 1:15) {
           incProgress(1 / 15)
@@ -748,11 +715,12 @@ server <- function(input, output, session) {
     heatmap_input()
   })
 
-  output$volcano <- renderPlot({
+  output$volcano_plot <- renderPlot({
     withProgress(
       message = "Volcano Plot calculations are in progress",
       detail = "Please wait for a while",
       value = 0,
+      session = session,
       {
         for (i in 1:15) {
           incProgress(1 / 15)
@@ -760,7 +728,7 @@ server <- function(input, output, session) {
         }
       }
     )
-    if (is.null(input$contents_rows_selected) & is.null(input$protein_brush)) {
+    if (is.null(input$contents_rows_selected) && is.null(input$protein_brush)) {
       volcano_input()
     } else if (!is.null(input$volcano_cntrst)) {
       volcano_input_selected()
@@ -814,7 +782,7 @@ server <- function(input, output, session) {
   ## Enrichment Outputs
   output$spinner_go <- renderUI({
     req(input$go_analysis)
-    shinycssloaders::withSpinner(plotOutput("go_enrichment"), color = "#3c8dbc")
+    shinycssloaders::withSpinner(plotOutput(name_space("go_enrichment")), color = "#3c8dbc")
   })
 
   output$go_enrichment <- renderPlot({
@@ -824,7 +792,7 @@ server <- function(input, output, session) {
 
   output$spinner_pa <- renderUI({
     req(input$pathway_analysis)
-    shinycssloaders::withSpinner(plotOutput("pathway_enrichment"), color = "#3c8dbc")
+    shinycssloaders::withSpinner(plotOutput(name_space("pathway_enrichment")), color = "#3c8dbc")
   })
 
   output$pathway_enrichment <- renderPlot({
@@ -1112,4 +1080,9 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+}
+
+server <- function(input, output, session) {
+  moduleServer("lfq", server_bg)
+  # server_bg(input, output, session)
 }

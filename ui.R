@@ -1,10 +1,14 @@
 # Define UI for data upload app ----
 library("shiny", quietly = TRUE)
 
+name_space <- shiny::NS("lfq")
+# name_space <- function(id) { id }
 
 mySvg <- function(id, text) {
   downloadButton(id, text, class = "w-25 mx-auto")
 }
+
+ACTION_CLASS <- "w-50 mx-auto"
 
 ICON_ACTION <- icon("person-running")
 
@@ -28,17 +32,17 @@ quick_start_page <- function() {
   )
 }
 
-# downloadTable
-# downloadButton
+# dataset
+# downloadData
 # significantBox
-# downloadreport
+# downloadReport
 top_row <- function() {
   bslib::layout_columns(
     col_widths = c(4, 5, 3),
     bslib::card(
       bslib::layout_columns(
         selectizeInput(
-          "dataset",
+          name_space("dataset"),
           "Choose a dataset to save",
           choice = c(
             "Results", "Original_matrix",
@@ -47,12 +51,12 @@ top_row <- function() {
           ),
           options = list(dropdownParent = "body")
         ),
-        downloadButton("downloadData", "Save", class = "mt-4")
+        downloadButton(name_space("downloadData"), "Save", class = "mt-4 p-2")
       )
     ),
-    uiOutput("significantBox"),
+    uiOutput(name_space("significantBox")),
     bslib::card(
-      downloadButton("downloadReport", "Download Report", class = "mt-4")
+      downloadButton(name_space("downloadReport"), "Download Report", class = "mt-3 p-2")
     )
   )
 }
@@ -63,15 +67,15 @@ results_table <- function() {
   bslib::card(
     class = "border-success",
     bslib::card_header(class = "bg-success", "LFQ Results Table"),
-    DT::dataTableOutput("contents"),
-    actionButton("original", "Refresh Table", icon = ICON_ACTION)
+    DT::dataTableOutput(name_space("contents")),
+    actionButton(name_space("original"), "Refresh Table", icon = ICON_ACTION, class = ACTION_CLASS)
   )
 }
-# volcano_cntrst
+# volcano_cntrst_placeholder
 # fontsize
 # check_names
 # p_adj
-# volcano protein_brush protein_click
+# volcano_plot protein_brush protein_click
 # downloadVolcano
 # resetPlot
 # heatmap
@@ -88,18 +92,18 @@ results_plots <- function() {
       title = "Volcano plot",
       bslib::layout_columns(
         # col_widths = c(4, 4, 4),
-        style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
-        uiOutput("volcano_cntrst"),
-        numericInput("fontsize",
+        # style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
+        uiOutput(name_space("volcano_cntrst_placeholder")),
+        numericInput(name_space("fontsize"),
           "Font size",
           min = 0, max = 8, value = 4
         ),
         bslib::card(
-          checkboxInput("check_names",
+          checkboxInput(name_space("check_names"),
             "Display names",
             value = FALSE
           ),
-          checkboxInput("p_adj",
+          checkboxInput(name_space("p_adj"),
             "Adjusted p values",
             value = FALSE
           )
@@ -108,7 +112,7 @@ results_plots <- function() {
       tags$p("Select protein from LFQ Results Table to highlight on the plot OR
                                                   drag the mouse on plot to show expression of proteins in Table"),
       bslib::card(
-        plotOutput("volcano",
+        plotOutput(name_space("volcano_plot"),
           height = 600,
           # hover = "protein_hover"),
           # ),
@@ -116,23 +120,24 @@ results_plots <- function() {
           brush = "protein_brush",
           click = "protein_click"
         ),
-        downloadButton("downloadVolcano", "Save Highlighted Plot"),
-        actionButton("resetPlot", "Clear Selection", icon = ICON_ACTION)
+        bslib::layout_columns(
+          # style = htmltools::css(grid_template_columns = "1fr 1fr"),
+          downloadButton(name_space("downloadVolcano"), "Save Highlighted Plot"),
+          actionButton(name_space("resetPlot"), "Clear Selection", icon = ICON_ACTION)
+        )
       )
     ),
     bslib::nav_panel(
       title = "Heatmap",
-      plotOutput("heatmap", height = 600),
-      bslib::card(
-        numericInput("cluster_number",
+      plotOutput(name_space("heatmap_plot"), height = 600),
+      bslib::layout_columns(
+        # style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
+        numericInput(name_space("cluster_number"),
           "Cluster to download",
           min = 1, max = 6, value = 1
         ),
-        width = 6
-      ),
-      bslib::card(downloadButton("downloadCluster", "Save Cluster"),
-        mySvg("download_hm_svg", "Save svg"),
-        width = 5
+        downloadButton(name_space("downloadCluster"), "Save Cluster", class = "mt-3"),
+        downloadButton(name_space("download_hm_svg"), "Save svg", class = "mt-3"),
       )
       # # align save button
       # tags$style(type = "text/css", "#downloadCluster {margin-top: 25px;}"),
@@ -141,7 +146,7 @@ results_plots <- function() {
     bslib::nav_panel(
       title = "Protein Plot",
       bslib::card(
-        radioButtons("protein_plot_type",
+        radioButtons(name_space("protein_plot_type"),
           "Plot type",
           choices = c(
             "Box Plot" = "boxplot",
@@ -156,8 +161,8 @@ results_plots <- function() {
       tags$p("Select one or more rows from LFQ Results Table to plot individual
                                                   protein intesities across conditions and replicates"),
       bslib::card(
-        plotOutput("protein_plot"),
-        downloadButton("downloadProtein", "Download Plot")
+        plotOutput(name_space("protein_plot")),
+        downloadButton(name_space("downloadProtein"), "Download Plot")
       )
     )
   )
@@ -184,43 +189,43 @@ qc_plots <- function() {
     # title = "QC Plots",
     bslib::nav_panel(
       title = "PCA Plot",
-      plotOutput("pca_plot", height = 600),
-      mySvg("download_pca_svg", "Save svg")
+      plotOutput(name_space("pca_plot"), height = 600),
+      mySvg(name_space("download_pca_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample Correlation",
-      plotOutput("sample_corr_plot", height = 600),
-      mySvg("download_corr_svg", "Save svg")
+      plotOutput(name_space("sample_corr_plot"), height = 600),
+      mySvg(name_space("download_corr_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample CVs",
-      plotOutput("sample_cvs_plot", height = 600),
-      mySvg("download_cvs_svg", "Save svg")
+      plotOutput(name_space("sample_cvs_plot"), height = 600),
+      mySvg(name_space("download_cvs_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Protein Numbers",
-      plotOutput("numbers_plot", height = 600),
-      mySvg("download_num_svg", "Save svg")
+      plotOutput(name_space("numbers_plot"), height = 600),
+      mySvg(name_space("download_num_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample coverage",
-      plotOutput("coverage_plot", height = 600),
-      mySvg("download_cov_svg", "Save svg")
+      plotOutput(name_space("coverage_plot"), height = 600),
+      mySvg(name_space("download_cov_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Normalization",
-      plotOutput("normalization_plot", height = 600),
-      mySvg("download_norm_svg", "Save svg")
+      plotOutput(name_space("normalization_plot"), height = 600),
+      mySvg(name_space("download_norm_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Missing values - Heatmap",
-      plotOutput("missval_plot", height = 600),
-      mySvg("download_missval_svg", "Save svg")
+      plotOutput(name_space("missval_plot"), height = 600),
+      mySvg(name_space("download_missval_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Imputation",
-      plotOutput("imputation_plot", height = 600),
-      mySvg("download_imp_svg", "Save svg")
+      plotOutput(name_space("imputation_plot"), height = 600),
+      mySvg(name_space("download_imp_svg"), "Save svg")
     ),
     bslib::nav_spacer(),
     bslib::nav_item("QC Plots")
@@ -243,9 +248,9 @@ enrichment_box <- function() {
     bslib::nav_panel(
       title = "Gene Ontology",
       bslib::layout_columns(
-        uiOutput("contrast_placeholder"),
+        uiOutput(name_space("contrast_placeholder")),
         selectizeInput(
-          "go_database", "GO database:",
+          name_space("go_database"), "GO database:",
           choices = c(
             "Molecular Function" = "GO_Molecular_Function_2021",
             "Cellular Component" = "GO_Cellular_Component_2021",
@@ -253,41 +258,50 @@ enrichment_box <- function() {
           ),
           options = list(dropdownParent = "body")
         ),
-        actionButton("go_analysis", "Run Enrichment", class = "mt-4 p-2", icon = ICON_ACTION)
+        actionButton(
+          name_space("go_analysis"), "Run Enrichment",
+          class = "mt-4 p-2",
+          icon = ICON_ACTION
+        )
       ),
-      bslib::card(uiOutput("spinner_go")),
-      downloadButton("downloadGO", "Download Table")
+      bslib::card(uiOutput(name_space("spinner_go"))),
+      downloadButton(name_space("downloadGO"), "Download Table", class = "w-50 mx-auto")
     ),
     bslib::nav_panel(
       title = "Pathway enrichment",
       bslib::layout_columns(
-        uiOutput("contrast_1_placeholder"),
+        uiOutput(name_space("contrast_1_placeholder")),
         selectizeInput(
-          "pathway_database", "Pathway database:",
+          name_space("pathway_database"), "Pathway database:",
           choices = c(
             "KEGG" = "KEGG_2021_Human",
             "Reactome" = "Reactome_2022"
           ),
           options = list(dropdownParent = "body")
         ),
-        actionButton("pathway_analysis", "Run Enrichment", class = "mt-4 p-2", icon = ICON_ACTION),
+        actionButton(
+          name_space("pathway_analysis"), "Run Enrichment",
+          class = "mt-4 p-2",
+          icon = ICON_ACTION
+        ),
       ),
-      bslib::card(uiOutput("spinner_pa"), height = 400),
-      downloadButton("downloadPA", "Download Table")
+      bslib::card(uiOutput(name_space("spinner_pa")), height = 400),
+      downloadButton(name_space("downloadPA"), "Download Table")
     )
   )
 }
 
 
-
+# quickstart_info
+# analysis_id
 analysis_tab <- function() {
   tagList(
     div(
-      id = "quickstart_info", quick_start_page()
+      id = name_space("quickstart_info"), quick_start_page()
     ),
     shinyjs::hidden(
       div(
-        id = "analysis_id",
+        id = name_space("analysis_id"),
         top_row(),
         bslib::layout_columns(
           results_table(),
@@ -322,7 +336,7 @@ sidebar_panel <- function() {
         bslib::accordion_panel(
           title = "Analysis", icon = icon("flask"),
           open = TRUE,
-          fileInput("maxquant_file",
+          fileInput(name_space("maxquant_file"),
             "Upload MaxQuant ProteinGroups.txt",
             accept = c(
               "text/csv",
@@ -330,7 +344,7 @@ sidebar_panel <- function() {
               ".csv"
             )
           ),
-          fileInput("exp_design_file",
+          fileInput(name_space("exp_design_file"),
             "Upload Experimental Design Matrix",
             accept = c(
               "text/csv",
@@ -339,29 +353,29 @@ sidebar_panel <- function() {
             )
           ),
           tags$hr(),
-          actionButton("analyze", "Start Analysis", icon = ICON_ACTION)
+          actionButton(name_space("analyze"), "Start Analysis", icon = ICON_ACTION)
         ),
         bslib::accordion_panel(
           title = "Advanced Options",
           icon = icon("cogs"),
-          numericInput("p_value",
+          numericInput(name_space("p_value"),
             "Adjusted p-value cutoff",
             min = 0.0001, max = 0.1, value = 0.05
           ),
-          numericInput("log_fold_change",
+          numericInput(name_space("log_fold_change"),
             "Log2 fold change cutoff",
             min = 0, max = 10, value = 1
           ),
           checkboxInput(
-            "paired",
+            name_space("paired"),
             "Paired test", FALSE
           ),
-          radioButtons("imputation",
+          radioButtons(name_space("imputation"),
             "Imputation type",
             choices = c("Perseus-type" = "man", MsCoreUtils::imputeMethods())[1:9],
             selected = "man"
           ),
-          radioButtons("fdr_correction",
+          radioButtons(name_space("fdr_correction"),
             "Type of FDR correction",
             choices = c(
               "Benjamini Hochberg" = "BH",
@@ -369,10 +383,10 @@ sidebar_panel <- function() {
             ), selected = "BH"
           ),
           checkboxInput(
-            "single_peptide",
+            name_space("single_peptide"),
             "Include single peptide identifications", FALSE
           ),
-          numericInput("k_number",
+          numericInput(name_space("k_number"),
             "Number of clusters in heatmap",
             min = 1, max = 20, value = 6
           )
@@ -392,7 +406,7 @@ link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
 ui <- shinyUI({
   bslib::page_navbar(
     title = tags$span("LFQ"),
-    theme = bslib::bs_theme(version = 5, font_scale = .8),
+    theme = bslib::bs_theme(version = 5, font_scale = .7),
     navbar_options = bslib::navbar_options(
       bg = "#0062cc"
     ),
