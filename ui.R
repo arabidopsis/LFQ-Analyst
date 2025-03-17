@@ -12,6 +12,18 @@ ACTION_CLASS <- "w-50 mx-auto"
 
 ICON_ACTION <- icon("person-running")
 
+toolBar <- function(...) {
+  div(
+    class = "btn-toolbar mb-3", role = "toolbar",
+    ...
+  )
+}
+
+btn2div <- function(btn) {
+  div(btn, class = "ps-1", style = "margin-top:2em;")
+}
+
+
 quick_start_page <- function() {
   bslib::card(
     class = "border-danger",
@@ -28,7 +40,7 @@ quick_start_page <- function() {
                         from MaxQuant.")
     ),
     br(),
-    HTML('<center><img src="/static/img/LFQ_analyst.svg" width="500px"></center>')
+    HTML('<center><img src="./static/img/LFQ_analyst.svg" width="500px"></center>')
   )
 }
 
@@ -36,23 +48,31 @@ quick_start_page <- function() {
 # downloadData
 # significantBox
 # downloadReport
+
+
+choose_download <- function() {
+  toolBar(
+    selectizeInput(
+      name_space("dataset"),
+      "Choose a dataset to save",
+      choice = c(
+        "Results", "Original_matrix",
+        "Imputed_matrix",
+        "Full_dataset"
+      ),
+      options = list(dropdownParent = "body"),
+      width = "50%"
+    ),
+    btn2div(downloadButton(name_space("downloadData"), "Save")),
+  )
+}
+
+
 top_row <- function() {
   bslib::layout_columns(
     col_widths = c(4, 5, 3),
     bslib::card(
-      bslib::layout_columns(
-        selectizeInput(
-          name_space("dataset"),
-          "Choose a dataset to save",
-          choice = c(
-            "Results", "Original_matrix",
-            "Imputed_matrix",
-            "Full_dataset"
-          ),
-          options = list(dropdownParent = "body")
-        ),
-        downloadButton(name_space("downloadData"), "Save", class = "mt-4 p-2")
-      )
+      choose_download()
     ),
     uiOutput(name_space("significantBox")),
     bslib::card(
@@ -260,7 +280,7 @@ enrichment_box <- function() {
         ),
         actionButton(
           name_space("go_analysis"), "Run Enrichment",
-          class = "mt-4 p-2",
+          style = "margin-top:2em;",
           icon = ICON_ACTION
         )
       ),
@@ -281,7 +301,7 @@ enrichment_box <- function() {
         ),
         actionButton(
           name_space("pathway_analysis"), "Run Enrichment",
-          class = "mt-4 p-2",
+          style = "margin-top:2em;",
           icon = ICON_ACTION
         ),
       ),
@@ -327,9 +347,10 @@ analysis_tab <- function() {
 # fdr_correction
 # single_peptide
 # k_number
-sidebar_panel <- function() {
+lfq_panel <- function() {
   bslib::layout_sidebar(
     title = "Analysis",
+    id = "analysis-panel",
     sidebar = bslib::sidebar(
       width = "20rem",
       bslib::accordion(
@@ -403,10 +424,29 @@ link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
   target = "_blank"
 )
 
+lfq_head <- function() {
+  tags$head(
+    # tags$link(rel = "icon", href = ICON),
+    # tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css?v=1.5"),
+    tags$style(HTML("
+          :root {
+            --bslib-spacer: .5rem;
+          }
+
+          #analysis-panel .card, #analysis-panel .well {
+            --bs-card-border-radius: 0px;
+            --bs-card-inner-border-radius: 0px;
+          }
+
+        ")),
+    shinyjs::useShinyjs() # imp to use shinyjs functions
+  )
+}
+
 ui <- shinyUI({
   bslib::page_navbar(
     title = tags$span("LFQ"),
-    theme = bslib::bs_theme(version = 5, font_scale = .7),
+    theme = bslib::bs_theme(version = 5, font_scale = 1.0, preset = "flatly"),
     navbar_options = bslib::navbar_options(
       bg = "#0062cc"
     ),
@@ -415,26 +455,11 @@ ui <- shinyUI({
     fillable = FALSE,
     header = tagList(
       shinydisconnect::disconnectMessage(),
-      tags$head(
-        # tags$link(rel = "icon", href = ICON),
-        # tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css?v=1.5"),
-        tags$style(HTML("
-          :root {
-            --bslib-spacer: .5rem;
-          }
-
-          .card, .well {
-            --bs-card-border-radius: 0px;
-            --bs-card-inner-border-radius: 0px;
-          }
-
-        ")),
-        shinyjs::useShinyjs() # imp to use shinyjs functions
-      )
+      lfq_head()
     ),
     bslib::nav_panel(
       title = "LFQ", value = "lfq", icon = icon("list"),
-      sidebar_panel()
+      lfq_panel()
     ),
     bslib::nav_spacer(),
     bslib::nav_item(link_LFQ)
