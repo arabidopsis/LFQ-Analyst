@@ -1,0 +1,19 @@
+[Unit]
+Description=LFQ Shiny Website
+[Service]
+ExecStart={{r_home|normpath}}/bin/Rscript --quiet -e "suppressWarnings(shiny::runApp('.',port={{port|default(4447)}}, display.mode='normal'))"
+KillSignal=SIGTERM
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=LFQAnalyst
+WorkingDirectory={{application_dir|normpath}}
+User={{user}}
+Group={{group}}
+# LimitNOFILE=64000
+Environment=LD_LIBRARY_PATH={{r_home|normpath}}/lib/R/lib
+Environment=LFQ_DATA_DIR={{data_dir|normpath}}
+
+[Install]
+WantedBy=multi-user.target
