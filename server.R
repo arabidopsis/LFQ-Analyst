@@ -197,7 +197,6 @@ server_bg <- function(input, output, session) {
     }
   })
 
-
   volcano_input_selected <- reactive({
     if (!is.null(input$volcano_cntrst)) {
       if (!is.null(input$contents_rows_selected)) {
@@ -317,7 +316,6 @@ server_bg <- function(input, output, session) {
     DEP::plot_cor(dep(), significant = FALSE)
   })
 
-
   cvs_input <- reactive({
     plot_cvs(dep())
   })
@@ -381,14 +379,7 @@ server_bg <- function(input, output, session) {
         )
       )
     })
-
-
-
-
     ## Select rows dynamically
-
-    # brush <- NULL
-    # makeReactiveBinding("brush")
 
     observeEvent(input$protein_brush, {
       output$contents <- DT::renderDataTable(
@@ -454,6 +445,7 @@ server_bg <- function(input, output, session) {
 
   #### ==== top row panel ==== ####
   top_row_panel <- function() {
+
     unimputed_table <- reactive({
       temp <- SummarizedExperiment::assay(processed_data())
       temp1 <- 2^(temp)
@@ -462,6 +454,7 @@ server_bg <- function(input, output, session) {
       # temp1$ProteinID<-rownames(temp1)
       return(as.data.frame(temp1))
     })
+
     imputed_table <- reactive({
       temp <- SummarizedExperiment::assay(imputed_data())
       # tibble::rownames_to_column(temp,var = "ProteinID")
@@ -500,6 +493,7 @@ server_bg <- function(input, output, session) {
         )
       }
     )
+
     output$downloadReport <- downloadHandler(
       # For PDF output, change this to "report.pdf"
       filename = "LFQ-Analyst_report.pdf",
@@ -846,6 +840,7 @@ server_bg <- function(input, output, session) {
     output$pca_plot <- renderPlot({
       pca_input()
     })
+
     output$sample_corr_plot <- renderPlot({
       correlation_input()
     })
@@ -877,6 +872,7 @@ server_bg <- function(input, output, session) {
     output$coverage_plot <- renderPlot({
       coverage_input()
     })
+
     output$download_pca_svg <- downloadHandler(
       filename = function() {
         "PCA_plot.svg"
@@ -909,7 +905,6 @@ server_bg <- function(input, output, session) {
         dev.off()
       }
     )
-
 
     output$download_num_svg <- downloadHandler(
       filename = function() {
