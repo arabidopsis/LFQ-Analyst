@@ -37,7 +37,7 @@ significantBox <- function(row_data, max_frac = 0.2) {
   )
 }
 
-server_bg <- function(input, output, session) {
+lfq_server <- function(input, output, session) {
   #  Show elements on clicking Start analysis button
   observeEvent(input$analyze,
     {
@@ -967,6 +967,6 @@ server_bg <- function(input, output, session) {
 
 server <- function(input, output, session) {
   options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
-  moduleServer("lfq", server_bg)
+  moduleServer("lfq", lfq_server)
   # server_bg(input, output, session)
 }
