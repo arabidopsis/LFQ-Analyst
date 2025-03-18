@@ -241,7 +241,7 @@ server_bg <- function(input, output, session) {
         paste("^", input$volcano_cntrst, "_log2", sep = ""),
         colnames(proteins_selected)
       )
-      if (input$p_adj == "FALSE") {
+      if (!input$p_adj) {
         padj_proteins <- grep(
           paste("^", input$volcano_cntrst, "_p.val", sep = ""),
           colnames(proteins_selected)
@@ -262,9 +262,9 @@ server_bg <- function(input, output, session) {
       p <- plot_volcano_new(
         dep(),
         input$volcano_cntrst,
-        input$fontsize,
-        input$check_names,
-        input$p_adj
+        label_size = input$fontsize,
+        add_names = input$check_names,
+        adjusted = input$p_adj
       )
 
       p + ggplot2::geom_point(data = df_protein, ggplot2::aes(x, y), color = "maroon", size = 3) +
@@ -565,9 +565,9 @@ server_bg <- function(input, output, session) {
         plot_volcano_new(
           dep(),
           input$volcano_cntrst,
-          input$fontsize,
-          input$check_names,
-          input$p_adj
+          label_size = input$fontsize,
+          add_names = input$check_names,
+          adjusted = input$p_adj
         )
       }
     })
