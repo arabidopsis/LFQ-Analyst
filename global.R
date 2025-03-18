@@ -1,4 +1,4 @@
-VERSION <- "v1.4"
+VERSION <- "v1.5"
 
 library("shiny")
 loadNamespace("DEP")
@@ -22,7 +22,6 @@ loadNamespace("DEP")
 source("R/functions.R")
 source("R/volcano_function.R")
 source("R/tests.R")
-source("R/demo_functions.R")
 source("R/enrichment_functions.R")
 
 

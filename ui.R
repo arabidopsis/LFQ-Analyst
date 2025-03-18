@@ -446,7 +446,7 @@ lfq_head <- function() {
 ui <- shinyUI({
   bslib::page_navbar(
     title = tags$span("LFQ"),
-    theme = bslib::bs_theme(version = 5, font_scale = 1.0, preset = "flatly"),
+    theme = bslib::bs_theme(version = 5, font_scale = 1.0, preset = "shiny"),
     navbar_options = bslib::navbar_options(
       bg = "#0062cc"
     ),
