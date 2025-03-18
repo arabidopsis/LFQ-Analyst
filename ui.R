@@ -46,10 +46,6 @@ quick_start_page <- function() {
 
 # dataset
 # downloadData
-# significantBox
-# downloadReport
-
-
 choose_download <- function() {
   toolBar(
     selectizeInput(
@@ -67,7 +63,8 @@ choose_download <- function() {
   )
 }
 
-
+# significantBox
+# downloadReport
 top_row <- function() {
   bslib::layout_columns(
     col_widths = c(4, 5, 3),
@@ -132,14 +129,14 @@ results_plots <- function() {
       tags$p("Select protein from LFQ Results Table to highlight on the plot OR
                                                   drag the mouse on plot to show expression of proteins in Table"),
       bslib::card(
-        plotOutput(name_space("volcano_plot"),
+        shinycssloaders::withSpinner(plotOutput(name_space("volcano_plot"),
           height = 600,
           # hover = "protein_hover"),
           # ),
           # click = "protein_click"),
           brush = "protein_brush",
           click = "protein_click"
-        ),
+        )),
         bslib::layout_columns(
           # style = htmltools::css(grid_template_columns = "1fr 1fr"),
           downloadButton(name_space("downloadVolcano"), "Save Highlighted Plot"),
@@ -149,7 +146,7 @@ results_plots <- function() {
     ),
     bslib::nav_panel(
       title = "Heatmap",
-      plotOutput(name_space("heatmap_plot"), height = 600),
+      shinycssloaders::withSpinner(plotOutput(name_space("heatmap_plot"), height = 600)),
       bslib::layout_columns(
         # style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
         numericInput(name_space("cluster_number"),
