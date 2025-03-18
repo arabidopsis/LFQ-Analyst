@@ -147,17 +147,16 @@ server_bg <- function(input, output, session) {
   })
 
   diff_all <- reactive({
-    DEP::test_diff(imputed_data(), type = "all")
+    if (input$fdr_correction == "BH") {
+      diff <- test_limma(imputed_data(), type = "all", paired = input$paired)
+    } else {
+      diff <- DEP::test_diff(imputed_data(), type = "all")
+    }
+    diff
   })
 
   dep <- reactive({
-    if (input$fdr_correction == "BH") {
-      diff_all <- test_limma(imputed_data(), type = "all", paired = input$paired)
-      DEP::add_rejections(diff_all(), alpha = input$p_value, lfc = input$log_fold_change)
-    } else {
-      diff_all <- DEP::test_diff(imputed_data(), type = "all")
-      DEP::add_rejections(diff_all(), alpha = input$p_value, lfc = input$log_fold_change)
-    }
+    DEP::add_rejections(diff_all(), alpha = input$p_value, lfc = input$log_fold_change)
   })
 
   comparisons <- reactive({
