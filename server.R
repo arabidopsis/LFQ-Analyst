@@ -41,76 +41,70 @@ server_bg <- function(input, output, session) {
   options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
 
   #  Show elements on clicking Start analysis button
-  observeEvent(input$analyze, {
-    if (input$analyze == 0) {
-      return()
-    }
-    shinyjs::hide("quickstart_info")
-    # shinyjs::show("downloadbox")
-    shinyjs::show("analysis_id")
+  observeEvent(input$analyze,
+    {
+      if (input$analyze == 0) {
+        return()
+      }
+      shinyjs::hide("quickstart_info")
+      # shinyjs::show("downloadbox")
+      shinyjs::show("analysis_id")
 
-    shinyalert::shinyalert("In Progress!", "Data analysis has started, wait until table and plots
+      shinyalert::shinyalert("In Progress!", "Data analysis has started, wait until table and plots
                 appear on the screen",
-      type = "info",
-      closeOnClickOutside = TRUE,
-      closeOnEsc = TRUE,
-      timer = 10000
-    ) # timer in miliseconds (10 sec)
-  })
+        type = "info",
+        closeOnClickOutside = TRUE,
+        closeOnEsc = TRUE,
+        timer = 10000
+      ) # timer in miliseconds (10 sec)
+    },
+    ignoreNULL = TRUE
+  )
 
-  maxquant_data_input <- eventReactive(input$analyze, {
-    inFile <- input$maxquant_file
-    if (is.null(inFile)) {
-      return(NULL)
-    }
-    temp_data <- read.table(inFile$datapath,
-      header = TRUE,
-      fill = TRUE, # to fill any missing data
-      sep = "\t",
-      quote = ""
-    )
-    validate(maxquant_input_test(temp_data))
-    return(temp_data)
-  })
+  maxquant_data_input <- eventReactive(input$analyze,
+    {
+      inFile <- input$maxquant_file
+      if (is.null(inFile)) {
+        return(NULL)
+      }
+      temp_data <- read.table(inFile$datapath,
+        header = TRUE,
+        fill = TRUE, # to fill any missing data
+        sep = "\t",
+        quote = ""
+      )
+      validate(maxquant_input_test(temp_data))
+      return(temp_data)
+    },
+    ignoreNULL = TRUE
+  )
 
-  exp_design_input <- eventReactive(input$analyze, {
-    inFile <- input$exp_design_file
-    if (is.null(inFile)) {
-      return(NULL)
-    }
-    temp_df <- read.table(inFile$datapath,
-      header = TRUE,
-      sep = "\t",
-      stringsAsFactors = FALSE
-    )
-    exp_design_test(temp_df)
-    temp_df$label <- as.character(temp_df$label)
-    temp_df$condition <- trimws(temp_df$condition, which = "left")
-    temp_df$condition <- temp_df$condition %>% gsub("[^[:alnum:]|_]+", "_", .) # auto fix special characters
-    return(temp_df)
-  })
+  exp_design_input <- eventReactive(input$analyze,
+    {
+      inFile <- input$exp_design_file
+      if (is.null(inFile)) {
+        return(NULL)
+      }
+      temp_df <- read.table(inFile$datapath,
+        header = TRUE,
+        sep = "\t",
+        stringsAsFactors = FALSE
+      )
+      exp_design_test(temp_df)
+      temp_df$label <- as.character(temp_df$label)
+      temp_df$condition <- trimws(temp_df$condition, which = "left")
+      temp_df$condition <- temp_df$condition %>% gsub("[^[:alnum:]|_]+", "_", .) # auto fix special characters
+      return(temp_df)
+    },
+    ignoreNULL = TRUE
+  )
 
 
   processed_data <- reactive({
-    ## check which dataset
-    if (!is.null(maxquant_data_input())) {
-      maxquant_data <- reactive({
-        maxquant_data_input()
-      })
-    }
-
-    if (!is.null(exp_design_input())) {
-      exp_design <- reactive({
-        exp_design_input()
-      })
-    }
-
-
-    # message(exp_design())
-    if (any(grepl("+", maxquant_data()$Reverse))) {
-      filtered_data <- dplyr::filter(maxquant_data(), Reverse != "+")
+    if (any(grepl("+", maxquant_data_input()$Reverse))) {
+      filtered_data <- dplyr::filter(maxquant_data_input(), Reverse != "+")
     } else {
-      filtered_data <- maxquant_data()
+      filtered_data <- maxquant_data_input()
     }
     if (any(grepl("+", filtered_data$Potential.contaminant))) {
       filtered_data <- dplyr::filter(filtered_data, Potential.contaminant != "+")
@@ -132,24 +126,11 @@ server_bg <- function(input, output, session) {
     # ensure all intensity columns are numeric type
     data_unique[, lfq_columns] <- sapply(data_unique[, lfq_columns], as.numeric)
     ## Check for matching columns in maxquant and experiment design file
-    test_match_lfq_column_design(data_unique, lfq_columns, exp_design())
-    data_se <- DEP::make_se(data_unique, lfq_columns, exp_design())
+    test_match_lfq_column_design(data_unique, lfq_columns, exp_design_input())
+    data_se <- DEP::make_se(data_unique, lfq_columns, exp_design_input())
 
-    # # Check number of replicates
-    # if(max(exp_design()$replicate)<3){
-    #   threshold<-0
-    # } else  if(max(exp_design()$replicate)==3){
-    #   threshold<-1
-    # } else if(max(exp_design()$replicate)<6 ){
-    #   threshold<-2
-    # } else if (max(exp_design()$replicate)>=6){
-    #   threshold<-trunc(max(exp_design()$replicate)/2)
-    # }
-    #
-    #
-    # filter_missval(data_se,thr = threshold)
-    # filter_missval(data_se,thr = threshold)
-    exp_df <- exp_design() %>% dplyr::count(condition)
+
+    exp_df <- exp_design_input() %>% dplyr::count(condition)
     exp_df <- exp_df %>% dplyr::mutate(thr = lapply(exp_df$n, threshold_detect)) # function:threshold_detect
     condition_list <- exp_df$condition
 
@@ -164,7 +145,6 @@ server_bg <- function(input, output, session) {
   imputed_data <- reactive({
     DEP::impute(processed_data(), input$imputation)
   })
-
 
   diff_all <- reactive({
     DEP::test_diff(imputed_data(), type = "all")
@@ -189,7 +169,7 @@ server_bg <- function(input, output, session) {
     trimws(temp)
   })
 
-  pca_input <- eventReactive(input$analyze, {
+  pca_input <- reactive({
     if (input$analyze == 0) {
       return()
     }
@@ -226,7 +206,7 @@ server_bg <- function(input, output, session) {
   })
 
   ### Heatmap Differentially expressed proteins
-  heatmap_cluster <- eventReactive(input$analyze, {
+  heatmap_cluster <- reactive({
     if (input$analyze == 0) {
       return()
     }
@@ -347,8 +327,7 @@ server_bg <- function(input, output, session) {
   })
 
   num_total <- reactive({
-    dep() %>%
-      nrow()
+    nrow(dep())
   })
 
   data_result <- reactive({
