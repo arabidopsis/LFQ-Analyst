@@ -169,7 +169,6 @@ server_bg <- function(input, output, session) {
   })
 
   pca_input <- reactive({
-
     num_total <- nrow(dep())
     if (num_total <= 500) {
       if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
@@ -204,7 +203,6 @@ server_bg <- function(input, output, session) {
 
   ### Heatmap Differentially expressed proteins
   heatmap_cluster <- reactive({
-
     heatmap_list <- get_cluster_heatmap(dep(),
       type = "centered", kmeans = TRUE,
       k = input$k_number, col_limit = 6,
@@ -731,7 +729,17 @@ server_bg <- function(input, output, session) {
       }
     })
     pathway_input <- eventReactive(input$pathway_analysis, {
-      progress_indicator("Pathway Analysis is running....", session)
+      shiny::withProgress(
+        message = "Pathway Analysis is running....",
+        detail = "Please wait for a while",
+        value = 0,
+        {
+          for (i in 1:15) {
+            shiny::incProgress(1 / 15)
+            Sys.sleep(0.25)
+          }
+        }
+      )
       enrichment_output_test(dep(), input$pathway_database)
       pathway_results <- test_gsea_mod(dep(), databases = input$pathway_database, contrasts = TRUE)
       null_enrichment_test(pathway_results)
