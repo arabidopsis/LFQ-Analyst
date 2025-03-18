@@ -367,7 +367,7 @@ lfq_sidebar <- function() {
             ".csv"
           )
         ),
-        tags$hr(class="mt-0 mb-2"),
+        tags$hr(class = "mt-0 mb-2"),
         actionButton(name_space("analyze"), "Start Analysis", icon = ICON_ACTION)
       ),
       bslib::accordion_panel(
@@ -445,28 +445,31 @@ lfq_head <- function() {
   )
 }
 
-ui <- bslib::page_navbar(
-  title = tags$span("LFQ"),
-  theme = bslib::bs_theme(version = 5, font_scale = 0.8, preset = "shiny"),
-  navbar_options = bslib::navbar_options(
-    bg = "#0062cc"
-  ),
-  id = "page",
-  window_title = "LFQ",
-  fillable = TRUE,
-  header = tagList(
-    shinydisconnect::disconnectMessage(),
-    lfq_head()
-  ),
-  bslib::nav_panel(
-    title = "LFQ", value = "lfq", icon = icon("list"),
-    lfq_panel()
-  ),
-  bslib::nav_spacer(),
-  bslib::nav_item(link_LFQ)
-  # footer = tagList(
-  #   tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
-  #           Monash University"),
-  #   #shiny.info::version(position = "bottom right")
-  # )
-)
+#' @export
+lfq_ui <- function() {
+  bslib::page_navbar(
+    title = tags$span("LFQ"),
+    theme = bslib::bs_theme(version = 5, font_scale = 0.8, preset = "shiny"),
+    navbar_options = bslib::navbar_options(
+      bg = "#0062cc"
+    ),
+    id = "page",
+    window_title = "LFQ",
+    fillable = TRUE,
+    header = tagList(
+      shinydisconnect::disconnectMessage(),
+      lfq_head()
+    ),
+    bslib::nav_panel(
+      title = "LFQ", value = "lfq", icon = icon("list"),
+      lfq_panel()
+    ),
+    bslib::nav_spacer(),
+    bslib::nav_item(link_LFQ)
+    # footer = tagList(
+    #   tags$p("Supported by: Monash Proteomics and Metabolomics Platform & Monash Bioinformatics Platform,
+    #           Monash University"),
+    #   #shiny.info::version(position = "bottom right")
+    # )
+  )
+}

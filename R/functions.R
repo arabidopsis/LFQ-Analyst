@@ -28,6 +28,9 @@
 # value <- ""
 # log_odds <- ""
 
+
+`%>%` <- magrittr::`%>%`
+
 matrixplot_modify <- function(data, mapping, pts = list(), smt = list(), ...) {
   ggplot2::ggplot(data = data, mapping = mapping, ...) +
     do.call(ggplot2::geom_point, pts) +

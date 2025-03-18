@@ -1,7 +1,6 @@
 # Define server logic to read selected file ----
 library("shiny", quietly = TRUE)
 
-
 name_space <- shiny::NS("lfq")
 
 significantBox <- function(row_data, max_frac = 0.2) {
@@ -37,6 +36,7 @@ significantBox <- function(row_data, max_frac = 0.2) {
   )
 }
 
+#' @export
 lfq_server <- function(input, output, session) {
   #  Show elements on clicking Start analysis button
   observeEvent(input$analyze,
@@ -363,7 +363,7 @@ lfq_server <- function(input, output, session) {
     proxy <- DT::dataTableProxy("contents")
 
     observeEvent(input$clear, {
-      proxy %>% DT::selectRows(NULL)
+      DT::selectRows(proxy, NULL)
     })
 
     observeEvent(input$original, {
@@ -445,7 +445,6 @@ lfq_server <- function(input, output, session) {
 
   #### ==== top row panel ==== ####
   top_row_panel <- function() {
-
     unimputed_table <- reactive({
       temp <- SummarizedExperiment::assay(processed_data())
       temp1 <- 2^(temp)
@@ -472,9 +471,6 @@ lfq_server <- function(input, output, session) {
       switch(input$dataset,
         "Results" = get_results_proteins(dep()),
         "Original_matrix" = unimputed_table(),
-        # "significant_proteins" = get_results(dep()) %>%
-        #   filter(significant) %>%
-        #   select(-significant),
         "Imputed_matrix" = imputed_table(),
         "Full_dataset" = DEP::get_df_wide(dep())
       )
@@ -504,15 +500,16 @@ lfq_server <- function(input, output, session) {
         tempReport <- file.path(tempdir(), "LFQ_report.Rmd")
         file.copy("LFQ_report.Rmd", tempReport, overwrite = TRUE)
 
-        sig_proteins <- dep() %>%
-          .[SummarizedExperiment::rowData(.)$significant, ] %>%
-          nrow()
+        rd <- SummarizedExperiment::rowData(dep())
+
+        sig_proteins <- nrow(rd[rd$significant, ])
+
 
         tested_contrasts <- gsub(
           "_p.adj", "",
-          colnames(SummarizedExperiment::rowData(dep()))[grep(
+          colnames(rd)[grep(
             "p.adj",
-            colnames(SummarizedExperiment::rowData(dep()))
+            colnames(rd)
           )]
         )
         pg_width <- ncol(imputed_data()) / 2.5
@@ -593,7 +590,7 @@ lfq_server <- function(input, output, session) {
     individual_cluster <- reactive({
       cluster_number <- input$cluster_number
       cluster_all <- heatmap_cluster()[[2]]
-      single_cluster <- cluster_all[names(cluster_all) == cluster_number] %>% unlist()
+      single_cluster <- unlist(cluster_all[names(cluster_all) == cluster_number])
       df <- data_result()[single_cluster, ]
       return(df)
     })
@@ -963,10 +960,4 @@ lfq_server <- function(input, output, session) {
   }
 
   qc_panel()
-}
-
-server <- function(input, output, session) {
-  options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
-  moduleServer("lfq", lfq_server)
-  # server_bg(input, output, session)
 }

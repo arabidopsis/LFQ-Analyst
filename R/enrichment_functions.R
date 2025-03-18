@@ -6,6 +6,9 @@
 # bg_IN <- ""
 # name <- ""
 
+
+`%>%` <- magrittr::`%>%`
+
 #' @export
 enrichr_mod <- function(genes, databases = NULL) {
   httr::set_config(httr::config(ssl_verifypeer = 0L))

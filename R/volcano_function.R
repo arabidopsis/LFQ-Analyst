@@ -14,6 +14,8 @@
 # y <- ""
 # n <- ""
 
+`%>%` <- magrittr::`%>%`
+
 #' @export
 plot_volcano_new <- function(dep, contrast, label_size = 3,
                              add_names = TRUE, adjusted = FALSE, plot = TRUE) {

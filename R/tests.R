@@ -6,6 +6,9 @@
 # contrast <- ""
 # Adjusted.P.value <- ""
 
+
+`%>%` <- magrittr::`%>%`
+
 #' @export
 exp_design_test <- function(exp_design) {
   col_names <- colnames(exp_design)
