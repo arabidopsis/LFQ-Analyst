@@ -169,9 +169,7 @@ server_bg <- function(input, output, session) {
   })
 
   pca_input <- reactive({
-    if (input$analyze == 0) {
-      return()
-    }
+
     num_total <- nrow(dep())
     if (num_total <= 500) {
       if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
@@ -206,9 +204,7 @@ server_bg <- function(input, output, session) {
 
   ### Heatmap Differentially expressed proteins
   heatmap_cluster <- reactive({
-    if (input$analyze == 0) {
-      return()
-    }
+
     heatmap_list <- get_cluster_heatmap(dep(),
       type = "centered", kmeans = TRUE,
       k = input$k_number, col_limit = 6,
