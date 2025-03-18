@@ -431,7 +431,6 @@ link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
 lfq_head <- function() {
   tags$head(
     # tags$link(rel = "icon", href = ICON),
-    # tags$link(rel = "stylesheet", type = "text/css", href = "/static/css/custom.css?v=1.5"),
     tags$style(HTML("
           :root {
             --bslib-spacer: .5rem;
