@@ -311,7 +311,7 @@ enrichment_box <- function() {
 
 # quickstart_info
 # analysis_id
-analysis_tab <- function() {
+lfq_analysis_tab <- function() {
   tagList(
     div(
       id = name_space("quickstart_info"), quick_start_page()
@@ -344,9 +344,10 @@ analysis_tab <- function() {
 # fdr_correction
 # single_peptide
 # k_number
-lfq_sidebar <- function() {
+#' @export
+lfq_sidebar <- function(width = "20rem") {
   bslib::sidebar(
-    width = "20rem",
+    width = width,
     bslib::accordion(
       bslib::accordion_panel(
         title = "Analysis", icon = icon("flask"),
@@ -410,13 +411,13 @@ lfq_sidebar <- function() {
   )
 }
 
-
-lfq_panel <- function() {
+#' @export
+lfq_panel <- function(id =  "analysis-panel", title = "Analysis") {
   bslib::layout_sidebar(
-    title = "Analysis",
-    id = "analysis-panel",
+    title = title,
+    id = id,
     sidebar = lfq_sidebar(),
-    analysis_tab()
+    lfq_analysis_tab()
   )
 }
 
@@ -426,6 +427,7 @@ link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
   target = "_blank"
 )
 
+#' @export
 lfq_head <- function() {
   tags$head(
     # tags$link(rel = "icon", href = ICON),
