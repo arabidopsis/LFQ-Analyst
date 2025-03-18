@@ -38,7 +38,6 @@ significantBox <- function(row_data, max_frac = 0.2) {
 }
 
 server_bg <- function(input, output, session) {
-
   #  Show elements on clicking Start analysis button
   observeEvent(input$analyze,
     {
@@ -53,7 +52,7 @@ server_bg <- function(input, output, session) {
         type = "info",
         closeOnClickOutside = TRUE,
         closeOnEsc = TRUE,
-        timer = 10000
+        timer = 5000
       ) # timer in miliseconds (10 sec)
     },
     ignoreNULL = TRUE
@@ -71,7 +70,7 @@ server_bg <- function(input, output, session) {
         sep = "\t",
         quote = ""
       )
-      validate(maxquant_input_test(temp_data))
+      maxquant_input_test(temp_data)
       return(temp_data)
     },
     ignoreNULL = TRUE
@@ -91,7 +90,7 @@ server_bg <- function(input, output, session) {
       exp_design_test(temp_df)
       temp_df$label <- as.character(temp_df$label)
       temp_df$condition <- trimws(temp_df$condition, which = "left")
-      temp_df$condition <- temp_df$condition %>% gsub("[^[:alnum:]|_]+", "_", .) # auto fix special characters
+      temp_df$condition <- gsub("[^[:alnum:]|_]+", "_", temp_df$condition) # auto fix special characters
       return(temp_df)
     },
     ignoreNULL = TRUE
@@ -129,8 +128,8 @@ server_bg <- function(input, output, session) {
     data_se <- DEP::make_se(data_unique, lfq_columns, exp_design_input())
 
 
-    exp_df <- exp_design_input() %>% dplyr::count(condition)
-    exp_df <- exp_df %>% dplyr::mutate(thr = lapply(exp_df$n, threshold_detect)) # function:threshold_detect
+    exp_df <- dplyr::count(exp_design_input(), condition)
+    exp_df <- dplyr::mutate(exp_df, thr = lapply(exp_df$n, threshold_detect)) # function:threshold_detect
     condition_list <- exp_df$condition
 
     data_filtered <- filter_missval_new(data_se, condition_list, exp_df)
@@ -158,13 +157,19 @@ server_bg <- function(input, output, session) {
     DEP::add_rejections(diff_all(), alpha = input$p_value, lfc = input$log_fold_change)
   })
 
-  comparisons <- reactive({
-    temp <- capture.output(DEP::test_diff(imputed_data(), type = "all"), type = "message")
-    gsub(".*: ", "", temp)
-    ## Split conditions into character vector
-    unlist(strsplit(temp, ","))
-    ## Remove leading and trailing spaces
-    trimws(temp)
+  # comparisons <- reactive({
+  #   temp <- capture.output(DEP::test_diff(imputed_data(), type = "all"), type = "message")
+  #   gsub(".*: ", "", temp)
+  #   ## Split conditions into character vector
+  #   unlist(strsplit(temp, ","))
+  #   ## Remove leading and trailing spaces
+  #   trimws(temp)
+  # })
+
+  comparisons2 <- reactive({
+    df <- SummarizedExperiment::rowData(dep())
+    cols <- grep("_significant$", colnames(df))
+    gsub("_significant", "", colnames(df)[cols])
   })
 
   ### Heatmap Differentially expressed proteins
@@ -181,7 +186,6 @@ server_bg <- function(input, output, session) {
     heatmap_list <- heatmap_cluster()
     heatmap_list[[1]]
   })
-
 
   volcano_df <- reactive({
     if (!is.null(input$volcano_cntrst)) {
@@ -244,7 +248,6 @@ server_bg <- function(input, output, session) {
         ) ## use the dataframe to plot points
     }
   })
-
 
   ## QC Inputs
   pca_input <- reactive({
@@ -431,18 +434,18 @@ server_bg <- function(input, output, session) {
 
 
     output$heatmap_plot <- renderPlot({
-      withProgress(
-        message = "Heatmap rendering is in progress",
-        detail = "Please wait for a while",
-        value = 0,
-        session = session,
-        {
-          for (i in 1:15) {
-            incProgress(1 / 15)
-            Sys.sleep(0.25)
-          }
-        }
-      )
+      # withProgress(
+      #   message = "Heatmap rendering is in progress",
+      #   detail = "Please wait for a while",
+      #   value = 0,
+      #   session = session,
+      #   {
+      #     for (i in 1:15) {
+      #       incProgress(1 / 15)
+      #       Sys.sleep(0.25)
+      #     }
+      #   }
+      # )
       heatmap_input()
     })
   }
@@ -467,11 +470,11 @@ server_bg <- function(input, output, session) {
       temp1 <- cbind(ProteinID = rownames(temp1), temp1) # temp1$ProteinID<-rownames(temp1)
       return(as.data.frame(temp1))
     })
-    observeEvent(dep(), {
-      output$significantBox <- renderUI({
-        significantBox(SummarizedExperiment::rowData(dep()))
-      })
+
+    output$significantBox <- renderUI({
+      significantBox(SummarizedExperiment::rowData(dep()))
     })
+
     datasetInput <- reactive({
       switch(input$dataset,
         "Results" = get_results_proteins(dep()),
@@ -603,15 +606,11 @@ server_bg <- function(input, output, session) {
 
     #### ======= Render Functions
     output$volcano_cntrst_placeholder <- renderUI({
-      if (!is.null(comparisons())) {
-        df <- SummarizedExperiment::rowData(dep())
-        cols <- grep("_significant$", colnames(df))
-        selectizeInput(name_space("volcano_cntrst"),
-          "Comparison",
-          choices = gsub("_significant", "", colnames(df)[cols]),
-          options = list(dropdownParent = "body")
-        )
-      }
+      selectizeInput(name_space("volcano_cntrst"),
+        "Comparison",
+        choices = comparisons2(),
+        options = list(dropdownParent = "body")
+      )
     })
 
     output$protein_plot <- renderPlot({
@@ -626,31 +625,31 @@ server_bg <- function(input, output, session) {
       },
       ## use = instead of <-
       content = function(file) {
-        # heatmap_plot<-DEP::plot_heatmap(dep(),"centered", k=6, indicate = "condition")
         svg(file)
         print(heatmap_input())
         dev.off()
       }
     )
     output$volcano_plot <- renderPlot({
-      withProgress(
-        message = "Volcano Plot calculations are in progress",
-        detail = "Please wait for a while",
-        value = 0,
-        session = session,
-        {
-          for (i in 1:15) {
-            incProgress(1 / 15)
-            Sys.sleep(0.25)
-          }
-        }
-      )
+      # withProgress(
+      #   message = "Volcano Plot calculations are in progress",
+      #   detail = "Please wait for a while",
+      #   value = 0,
+      #   session = session,
+      #   {
+      #     for (i in 1:15) {
+      #       incProgress(1 / 15)
+      #       Sys.sleep(0.25)
+      #     }
+      #   }
+      # )
       if (is.null(input$contents_rows_selected) && is.null(input$protein_brush)) {
         volcano_input()
       } else if (!is.null(input$volcano_cntrst)) {
         volcano_input_selected()
       } # else close
     })
+
     output$downloadCluster <- downloadHandler(
       filename = function() {
         paste("Cluster_info_", input$cluster_number, ".csv", sep = "")
@@ -752,28 +751,22 @@ server_bg <- function(input, output, session) {
       return(pathway_list)
     })
     ## Enrichment Outputs
+
+
     output$contrast_placeholder <- renderUI({
-      if (!is.null(comparisons())) {
-        df <- SummarizedExperiment::rowData(dep())
-        cols <- grep("_significant$", colnames(df))
-        selectizeInput(name_space("contrast"),
-          "Comparison",
-          choices = gsub("_significant", "", colnames(df)[cols]),
-          options = list(dropdownParent = "body")
-        )
-      }
+      selectizeInput(name_space("contrast"),
+        "Comparison",
+        choices = comparisons2(),
+        options = list(dropdownParent = "body")
+      )
     })
 
     output$contrast_1_placeholder <- renderUI({
-      if (!is.null(comparisons())) {
-        df <- SummarizedExperiment::rowData(dep())
-        cols <- grep("_significant$", colnames(df))
-        selectizeInput(name_space("contrast_1"),
-          "Comparison",
-          choices = gsub("_significant", "", colnames(df)[cols]),
-          options = list(dropdownParent = "body")
-        )
-      }
+      selectizeInput(name_space("contrast_1"),
+        "Comparison",
+        choices = comparisons2(),
+        options = list(dropdownParent = "body")
+      )
     })
     output$spinner_go <- renderUI({
       req(input$go_analysis)
