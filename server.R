@@ -38,7 +38,6 @@ significantBox <- function(row_data, max_frac = 0.2) {
 }
 
 server_bg <- function(input, output, session) {
-  options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
 
   #  Show elements on clicking Start analysis button
   observeEvent(input$analyze,
@@ -47,7 +46,6 @@ server_bg <- function(input, output, session) {
         return()
       }
       shinyjs::hide("quickstart_info")
-      # shinyjs::show("downloadbox")
       shinyjs::show("analysis_id")
 
       shinyalert::shinyalert("In Progress!", "Data analysis has started, wait until table and plots
@@ -99,6 +97,7 @@ server_bg <- function(input, output, session) {
     ignoreNULL = TRUE
   )
 
+  # these need to be global because of LFQ_report.Rmd
 
   processed_data <- reactive({
     if (any(grepl("+", maxquant_data_input()$Reverse))) {
@@ -166,39 +165,6 @@ server_bg <- function(input, output, session) {
     unlist(strsplit(temp, ","))
     ## Remove leading and trailing spaces
     trimws(temp)
-  })
-
-  pca_input <- reactive({
-    num_total <- nrow(dep())
-    if (num_total <= 500) {
-      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
-        pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4)
-        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
-        return(pca_plot)
-      } else {
-        pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4, indicate = "condition")
-        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
-        return(pca_plot)
-      }
-    } else {
-      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
-        pca_plot <- DEP::plot_pca(dep(), point_size = 4)
-        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
-        return(pca_plot)
-      } else {
-        # pca_label<-SummarizedExperiment::colData(dep())$replicate
-        pca_plot <- DEP::plot_pca(dep(), point_size = 4, indicate = "condition")
-        # pca_plot<-pca_plot + geom_point()
-        pca_plot <- pca_plot + ggrepel::geom_text_repel(ggplot2::aes(label = factor(rowname)),
-          size = 4,
-          box.padding = grid::unit(0.1, "lines"),
-          point.padding = grid::unit(0.1, "lines"),
-          segment.size = 0.5
-        )
-        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
-        return(pca_plot)
-      }
-    }
   })
 
   ### Heatmap Differentially expressed proteins
@@ -281,6 +247,39 @@ server_bg <- function(input, output, session) {
 
 
   ## QC Inputs
+  pca_input <- reactive({
+    num_total <- nrow(dep())
+    if (num_total <= 500) {
+      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
+        pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4)
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
+        return(pca_plot)
+      } else {
+        pca_plot <- DEP::plot_pca(dep(), n = num_total(), point_size = 4, indicate = "condition")
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
+        return(pca_plot)
+      }
+    } else {
+      if (length(levels(as.factor(SummarizedExperiment::colData(dep())$replicate))) <= 6) {
+        pca_plot <- DEP::plot_pca(dep(), point_size = 4)
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
+        return(pca_plot)
+      } else {
+        # pca_label<-SummarizedExperiment::colData(dep())$replicate
+        pca_plot <- DEP::plot_pca(dep(), point_size = 4, indicate = "condition")
+        # pca_plot<-pca_plot + geom_point()
+        pca_plot <- pca_plot + ggrepel::geom_text_repel(ggplot2::aes(label = factor(rowname)),
+          size = 4,
+          box.padding = grid::unit(0.1, "lines"),
+          point.padding = grid::unit(0.1, "lines"),
+          segment.size = 0.5
+        )
+        pca_plot <- pca_plot + ggplot2::labs(title = "PCA Plot")
+        return(pca_plot)
+      }
+    }
+  })
+
   norm_input <- reactive({
     DEP::plot_normalization(
       processed_data(),
@@ -314,6 +313,7 @@ server_bg <- function(input, output, session) {
   correlation_input <- reactive({
     DEP::plot_cor(dep(), significant = FALSE)
   })
+
 
   cvs_input <- reactive({
     plot_cvs(dep())
@@ -973,10 +973,12 @@ server_bg <- function(input, output, session) {
       }
     )
   }
+
   qc_panel()
 }
 
 server <- function(input, output, session) {
+  options(shiny.maxRequestSize = 100 * 1024^2) ## Set maximum upload size to 100MB
   moduleServer("lfq", server_bg)
   # server_bg(input, output, session)
 }

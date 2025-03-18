@@ -14,7 +14,7 @@
 # y <- ""
 # n <- ""
 
-
+#' @export
 plot_volcano_new <- function(dep, contrast, label_size = 3,
                              add_names = TRUE, adjusted = FALSE, plot = TRUE) {
   # Show error if inputs are not the required classes
@@ -175,6 +175,7 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
 
 
 ##### ====== get_volcano_df =======#######
+#' @export
 get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
   # Show error if inputs are not the required classes
   assertthat::assert_that(
@@ -273,6 +274,7 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
 }
 
 ### Function to plot intensities of individual proteins
+#' @export
 plot_protein <- function(dep, protein, type) {
   assertthat::assert_that(
     inherits(dep, "SummarizedExperiment"),
@@ -374,6 +376,7 @@ plot_protein <- function(dep, protein, type) {
   p
 }
 
+#' @export
 plot_volcano_mod <- function(dep, contrast, label_size = 3,
                              add_names = TRUE, adjusted = FALSE, plot = TRUE) {
   # Show error if inputs are not the required classes

@@ -6,7 +6,7 @@
 # contrast <- ""
 # Adjusted.P.value <- ""
 
-
+#' @export
 exp_design_test <- function(exp_design) {
   col_names <- colnames(exp_design)
   ##
@@ -20,6 +20,7 @@ exp_design_test <- function(exp_design) {
 }
 
 ### Test if column names are proper in maxquant ProteinGroups file
+#' @export
 maxquant_input_test <- function(maxquant_input) {
   col_names <- colnames(maxquant_input)
   ##
@@ -45,6 +46,7 @@ maxquant_input_test <- function(maxquant_input) {
 
 ### Test if experimental design names and LFQ column names match
 
+#' @export
 test_match_lfq_column_design <- function(unique_data, lfq_columns, exp_design) {
   # Show error if inputs are not the required classes
   assertthat::assert_that(
@@ -88,7 +90,7 @@ test_match_lfq_column_design <- function(unique_data, lfq_columns, exp_design) {
 }
 
 
-
+#' @export
 enrichment_output_test <- function(dep, database) {
   significant <- SummarizedExperiment::rowData(dep) %>%
     as.data.frame() %>%
@@ -103,6 +105,7 @@ enrichment_output_test <- function(dep, database) {
   }
 }
 
+#' @export
 null_enrichment_test <- function(gsea_result, alpha = 0.05) {
   gsea_df <- gsea_result %>%
     dplyr::group_by(contrast, var) %>%
@@ -115,6 +118,7 @@ null_enrichment_test <- function(gsea_result, alpha = 0.05) {
   }
 }
 
+#' @export
 ids_test <- function(filtered_data) {
   if ("Evidence.IDs" %in% colnames(filtered_data)) {
     filtered_data$`Evidence.IDs` <- stringr::str_trunc(as.character(filtered_data$`Evidence.IDs`), 25000)

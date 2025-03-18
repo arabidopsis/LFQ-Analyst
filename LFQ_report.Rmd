@@ -125,9 +125,9 @@ print(params$heatmap_input())
 
 ```{r volcano,  echo=FALSE, warning=FALSE, comment=NA,fig.align='center'}
 for(i in params$tested_contrasts){
- # print(paste0('volcano_plot_',i,sep=""))
-  print(plot_volcano_new(params$dep(),contrast = i,label_size = 2, add_names = F))
-  }
+  # print(paste0('volcano_plot_',i,sep=""))
+  print(plot_volcano_new(params$dep(), contrast = i, label_size = 2, add_names = FALSE))
+}
 ```
 
 

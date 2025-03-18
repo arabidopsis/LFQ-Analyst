@@ -6,7 +6,7 @@
 # bg_IN <- ""
 # name <- ""
 
-
+#' @export
 enrichr_mod <- function(genes, databases = NULL) {
   httr::set_config(httr::config(ssl_verifypeer = 0L))
   cat("Uploading data to Enrichr... ")
@@ -53,7 +53,7 @@ enrichr_mod <- function(genes, databases = NULL) {
 
 ###### ========= Test_gsea new
 
-
+#' @export
 test_gsea_mod <- function(dep,
                           databases,
                           contrasts = TRUE) {

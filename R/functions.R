@@ -48,6 +48,7 @@ coef_variation <- function(x) {
 
 #### Plot CVs
 
+#' @export
 plot_cvs <- function(se) {
   ## backtransform data
   untransformed_intensity <- 2^(SummarizedExperiment::assay(se))
@@ -88,6 +89,7 @@ plot_cvs <- function(se) {
 
 
 #### Get individual clusters from heatmap
+#' @export
 get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
                                 kmeans = FALSE, k = 6,
                                 col_limit = 6, indicate = NULL,
@@ -380,6 +382,7 @@ get_annotation <- function(dep, indicate) {
 
 #### ===== limma BH FDR ===== #####
 
+#' @export
 test_limma <- function(se, type = c("control", "all", "manual"),
                        control = NULL, test = NULL,
                        design_formula = formula(~ 0 + condition),
@@ -585,6 +588,7 @@ test_limma <- function(se, type = c("control", "all", "manual"),
   # return(table)
 }
 
+#' @export
 get_results_proteins <- function(dep) {
   # Show error if inputs are not the required classes
   assertthat::assert_that(inherits(dep, "SummarizedExperiment"))
@@ -669,6 +673,7 @@ get_results_proteins <- function(dep) {
 ## Plot Enrichment Results
 #######################################################
 
+#' @export
 plot_enrichment <- function(gsea_results, number = 10, alpha = 0.05,
                             contrasts = NULL, databases = NULL,
                             nrow = 1, term_size = 8) {
@@ -891,6 +896,7 @@ keep_function <- function(se) {
   keep
 }
 
+#' @export
 filter_missval_new <- function(se, one_condition, exp_df) {
   threshold <- exp_df$thr[exp_df$condition == one_condition] %>% unlist()
   keep <- keep_function(se)
