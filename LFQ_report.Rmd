@@ -14,7 +14,6 @@ params:
   missval_input: NA
   detect_input: NA
   imputation_input: NA
-  p_hist_input: NA
   heatmap_input: NA
   dep: NA
   pg_width: NA
