@@ -1,6 +1,9 @@
 # Define UI for data upload app ----
 library("shiny", quietly = TRUE)
 
+
+HEIGHT <- 600
+
 name_space <- shiny::NS("lfq")
 # name_space <- function(id) { id }
 
@@ -130,7 +133,7 @@ results_plots <- function() {
                                                   drag the mouse on plot to show expression of proteins in Table"),
       bslib::card(
         shinycssloaders::withSpinner(plotOutput(name_space("volcano_plot"),
-          height = 600,
+          height = HEIGHT,
           # hover = "protein_hover"),
           # ),
           # click = "protein_click"),
@@ -146,7 +149,7 @@ results_plots <- function() {
     ),
     bslib::nav_panel(
       title = "Heatmap",
-      shinycssloaders::withSpinner(plotOutput(name_space("heatmap_plot"), height = 600)),
+      shinycssloaders::withSpinner(plotOutput(name_space("heatmap_plot"), height = HEIGHT)),
       bslib::layout_columns(
         # style = htmltools::css(grid_template_columns = "1fr 1fr 1fr"),
         numericInput(name_space("cluster_number"),
@@ -206,42 +209,42 @@ qc_plots <- function() {
     # title = "QC Plots",
     bslib::nav_panel(
       title = "PCA Plot",
-      plotOutput(name_space("pca_plot"), height = 600),
+      plotOutput(name_space("pca_plot"), height = HEIGHT),
       mySvg(name_space("download_pca_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample Correlation",
-      plotOutput(name_space("sample_corr_plot"), height = 600),
+      plotOutput(name_space("sample_corr_plot"), height = HEIGHT),
       mySvg(name_space("download_corr_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample CVs",
-      plotOutput(name_space("sample_cvs_plot"), height = 600),
+      plotOutput(name_space("sample_cvs_plot"), height = HEIGHT),
       mySvg(name_space("download_cvs_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Protein Numbers",
-      plotOutput(name_space("numbers_plot"), height = 600),
+      plotOutput(name_space("numbers_plot"), height = HEIGHT),
       mySvg(name_space("download_num_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Sample coverage",
-      plotOutput(name_space("coverage_plot"), height = 600),
+      plotOutput(name_space("coverage_plot"), height = HEIGHT),
       mySvg(name_space("download_cov_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Normalization",
-      plotOutput(name_space("normalization_plot"), height = 600),
+      plotOutput(name_space("normalization_plot"), height = HEIGHT),
       mySvg(name_space("download_norm_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Missing values - Heatmap",
-      plotOutput(name_space("missval_plot"), height = 600),
+      plotOutput(name_space("missval_plot"), height = HEIGHT),
       mySvg(name_space("download_missval_svg"), "Save svg")
     ),
     bslib::nav_panel(
       title = "Imputation",
-      plotOutput(name_space("imputation_plot"), height = 600),
+      plotOutput(name_space("imputation_plot"), height = HEIGHT),
       mySvg(name_space("download_imp_svg"), "Save svg")
     ),
     bslib::nav_spacer(),
@@ -259,7 +262,9 @@ qc_plots <- function() {
 # pathway_analysis
 # spinner_pa
 # downloadPA
+
 enrichment_box <- function() {
+  MT <- "margin-top:1em;"
   bslib::navset_card_underline(
     title = "Enrichment",
     bslib::nav_panel(
@@ -277,7 +282,7 @@ enrichment_box <- function() {
         ),
         actionButton(
           name_space("go_analysis"), "Run Enrichment",
-          style = "margin-top:2em;",
+          style = MT,
           icon = ICON_ACTION
         )
       ),
@@ -298,11 +303,11 @@ enrichment_box <- function() {
         ),
         actionButton(
           name_space("pathway_analysis"), "Run Enrichment",
-          style = "margin-top:2em;",
+          style = MT,
           icon = ICON_ACTION
         ),
       ),
-      bslib::card(uiOutput(name_space("spinner_pa")), height = 400),
+      bslib::card(uiOutput(name_space("spinner_pa")), height = HEIGHT),
       downloadButton(name_space("downloadPA"), "Download Table")
     )
   )
@@ -431,17 +436,7 @@ link_LFQ <- tags$a(icon("chart-line"), "LFQ-Analyst",
 lfq_head <- function() {
   tags$head(
     # tags$link(rel = "icon", href = ICON),
-    tags$style(HTML("
-          :root {
-            --bslib-spacer: .5rem;
-          }
-
-          #analysis-panel .card, #analysis-panel .well {
-            --bs-card-border-radius: 0px;
-            --bs-card-inner-border-radius: 0px;
-          }
-
-        ")),
+    tags$style(includeCSS("www/static/css/bs.css")),
     shinyjs::useShinyjs() # imp to use shinyjs functions
   )
 }
@@ -450,7 +445,7 @@ lfq_head <- function() {
 lfq_ui <- function() {
   bslib::page_navbar(
     title = tags$span("LFQ"),
-    theme = bslib::bs_theme(version = 5, font_scale = 0.8, preset = "shiny"),
+    theme = bslib::bs_theme(version = 5, preset = "shiny"),
     navbar_options = bslib::navbar_options(
       bg = "#0062cc"
     ),

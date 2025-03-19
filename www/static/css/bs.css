@@ -1,0 +1,14 @@
+:root {
+    --bslib-spacer: .5rem;
+    /* --bs-body-font-size: .8rem; */
+}
+
+/* .btn {
+    --bs-btn-font-size: .8rem;
+  } */
+
+#analysis-panel .card,
+#analysis-panel .well {
+    --bs-card-border-radius: 0px;
+    --bs-card-inner-border-radius: 0px;
+}
