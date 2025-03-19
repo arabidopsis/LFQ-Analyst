@@ -350,9 +350,9 @@ lfq_analysis_tab <- function() {
 # single_peptide
 # k_number
 #' @export
-lfq_sidebar <- function(width = "20rem") {
+lfq_sidebar <- function(sidebar_width = "20rem") {
   bslib::sidebar(
-    width = width,
+    width = sidebar_width,
     bslib::accordion(
       bslib::accordion_panel(
         title = "Analysis", icon = icon("flask"),
@@ -417,11 +417,11 @@ lfq_sidebar <- function(width = "20rem") {
 }
 
 #' @export
-lfq_panel <- function(id =  "analysis-panel", title = "Analysis") {
+lfq_panel <- function(id = "analysis-panel", title = "Analysis", sidebar_width = "20rem") {
   bslib::layout_sidebar(
     title = title,
     id = id,
-    sidebar = lfq_sidebar(),
+    sidebar = lfq_sidebar(sidebar_width = sidebar_width),
     lfq_analysis_tab()
   )
 }
@@ -442,7 +442,7 @@ lfq_head <- function() {
 }
 
 #' @export
-lfq_ui <- function() {
+lfq_ui <- function(id = "analysis-panel", title = "Analysis", sidebar_width = "20rem") {
   bslib::page_navbar(
     title = tags$span("LFQ"),
     theme = bslib::bs_theme(version = 5, preset = "shiny"),
@@ -458,7 +458,7 @@ lfq_ui <- function() {
     ),
     bslib::nav_panel(
       title = "LFQ", value = "lfq", icon = icon("list"),
-      lfq_panel()
+      lfq_panel(id = id, title = title, sidebar_width = sidebar_width)
     ),
     bslib::nav_spacer(),
     bslib::nav_item(link_LFQ)
