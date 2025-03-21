@@ -9,6 +9,7 @@
 
 `%>%` <- magrittr::`%>%`
 
+# API at https://maayanlab.cloud/Enrichr/help#api
 #' @export
 enrichr_mod <- function(genes, databases = NULL) {
   httr::set_config(httr::config(ssl_verifypeer = 0L))
