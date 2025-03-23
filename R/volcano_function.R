@@ -77,7 +77,7 @@ plot_volcano_new <- function(dep, contrast, label_size = 3,
     valid_cntrsts <- row_data %>%
       data.frame() %>%
       dplyr::select(dplyr::ends_with("_diff")) %>%
-      colnames(.) %>%
+      colnames() %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
       "Valid contrasts are: '",
@@ -228,7 +228,7 @@ get_volcano_df <- function(dep, contrast, adjusted = FALSE) {
     valid_cntrsts <- row_data %>%
       data.frame() %>%
       dplyr::select(dplyr::ends_with("_diff")) %>%
-      colnames(.) %>%
+      colnames() %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
       "Valid contrasts are: '",
@@ -288,7 +288,7 @@ plot_protein <- function(dep, protein, type) {
   df_reps <- data.frame(SummarizedExperiment::assay(subset)) %>%
     tibble::rownames_to_column() %>%
     tidyr::gather("ID", "val", -rowname) %>%
-    dplyr::left_join(., data.frame(SummarizedExperiment::colData(subset)), by = "ID")
+    dplyr::left_join(data.frame(SummarizedExperiment::colData(subset)), by = "ID")
   df_reps$rowname <- readr::parse_factor(as.character(df_reps$rowname), levels = protein)
 
   df_CI <- df_reps %>%
@@ -439,7 +439,7 @@ plot_volcano_mod <- function(dep, contrast, label_size = 3,
     valid_cntrsts <- row_data %>%
       data.frame() %>%
       dplyr::select(dplyr::ends_with("_diff")) %>%
-      colnames(.) %>%
+      colnames() %>%
       gsub("_diff", "", .)
     valid_cntrsts_msg <- paste0(
       "Valid contrasts are: '",
