@@ -31,19 +31,6 @@
 
 `%>%` <- magrittr::`%>%`
 
-matrixplot_modify <- function(data, mapping, pts = list(), smt = list(), ...) {
-  ggplot2::ggplot(data = data, mapping = mapping, ...) +
-    do.call(ggplot2::geom_point, pts) +
-    do.call(ggplot2::geom_smooth, smt)
-}
-
-
-
-# get_pdf_plot<-function(type_of_plot){
-#   pdf(paste0(type_of_plot,".pdf",sep="")
-#       plot(type_of_plot)
-#       dev.off()
-# }
 
 coef_variation <- function(x) {
   sd(x) / mean(x)
@@ -63,7 +50,7 @@ plot_cvs <- function(se) {
     data.frame() %>%
     tibble::rownames_to_column() %>%
     tidyr::gather("ID", "Intensity", -rowname) %>%
-    dplyr::left_join(., data.frame(exp_design), by = "ID") %>%
+    dplyr::left_join(data.frame(exp_design), by = "ID") %>%
     dplyr::group_by(rowname, condition) %>%
     dplyr::summarise(cvs = coef_variation(Intensity)) %>%
     dplyr::group_by(condition) %>%
@@ -199,7 +186,7 @@ get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
     df <- SummarizedExperiment::rowData(filtered) %>%
       data.frame() %>%
       tibble::column_to_rownames(var = "name") %>%
-      dplyr::select(dplyr::ends_with("_diff"))
+      dplyr::select(tidyselect::ends_with("_diff"))
     colnames(df) <-
       gsub("_diff", "", colnames(df)) %>%
       gsub("_vs_", " vs ", .)
@@ -219,7 +206,7 @@ get_cluster_heatmap <- function(dep, type = c("contrast", "centered"),
       # Order the k-means clusters according to the maximum fold change
       # in all samples averaged over the proteins in the cluster
       order <- data.frame(df) %>%
-        cbind(., cluster = df_kmeans$cluster) %>%
+        cbind(cluster = df_kmeans$cluster) %>%
         dplyr::mutate(row = apply(.[, seq_len(ncol(.) - 1)], 1, function(x) max(x))) %>%
         dplyr::group_by(cluster) %>%
         dplyr::summarize(index = sum(row) / dplyr::n()) %>%
@@ -445,7 +432,7 @@ test_limma <- function(se, type = c("control", "all", "manual"),
 
   # variables in formula
   variables <- terms.formula(design_formula) %>%
-    attr(., "variables") %>%
+    attr("variables") %>%
     as.character() %>%
     .[-1]
 
@@ -619,7 +606,7 @@ get_results_proteins <- function(dep) {
   centered <- data.frame(centered) %>%
     tibble::rownames_to_column() %>%
     tidyr::gather("ID", "val", -rowname) %>%
-    dplyr::left_join(., data.frame(SummarizedExperiment::colData(dep)), by = "ID")
+    dplyr::left_join(data.frame(SummarizedExperiment::colData(dep)), by = "ID")
   centered <- dplyr::group_by(centered, rowname, condition) %>%
     dplyr::summarize(val = mean(val, na.rm = TRUE)) %>%
     dplyr::mutate(val = signif(val, digits = 3)) %>%
@@ -631,7 +618,7 @@ get_results_proteins <- function(dep) {
   ratio <- as.data.frame(row_data) %>%
     # tibble::column_to_rownames("name") %>%
     dplyr::select(dplyr::ends_with("diff")) %>%
-    signif(., digits = 3) %>%
+    signif(digits = 3) %>%
     tibble::rownames_to_column()
   colnames(ratio)[2:ncol(ratio)] <-
     gsub("_diff", "_log2 fold change", colnames(ratio)[2:ncol(ratio)])
@@ -893,7 +880,7 @@ keep_function <- function(se) {
     data.frame() %>%
     tibble::rownames_to_column() %>%
     tidyr::gather("ID", "value", -rowname) %>%
-    dplyr::left_join(., data.frame(SummarizedExperiment::colData(se)), by = "ID") %>%
+    dplyr::left_join(data.frame(SummarizedExperiment::colData(se)), by = "ID") %>%
     dplyr::group_by(rowname, condition) %>%
     dplyr::summarize(miss_val = dplyr::n() - sum(value))
   keep
