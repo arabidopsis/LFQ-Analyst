@@ -116,7 +116,7 @@ lfq_server <- function(input, output, session) {
       filtered_data <- dplyr::filter(filtered_data, as.numeric(Razor...unique.peptides) >= 2)
     }
 
-    filtered_data <- ids_test(filtered_data)
+    filtered_data <- patch_id_strings(filtered_data)
 
     data_unique <- DEP::make_unique(filtered_data, "Gene.names", "Protein.IDs", delim = ";")
     lfq_columns <- grep("LFQ.", colnames(data_unique))
